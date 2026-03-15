@@ -210,6 +210,15 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
     <div class="txlist" id="walletTxList"></div>
   </div>
 
+  <!-- DEBUG PANEL -->
+  <div class="card" id="debugCard" style="display:none">
+    <div class="ct" style="cursor:pointer" onclick="toggleDebug()">
+      Raw resources — debug
+      <span class="ct-badge" id="debugBadge">click to show</span>
+    </div>
+    <div id="debugContent" style="display:none;font-family:monospace;font-size:11px;color:var(--muted);background:var(--bg3);border-radius:var(--rs);padding:1rem;overflow-x:auto;white-space:pre-wrap;max-height:300px;overflow-y:auto;"></div>
+  </div>
+
 </div>
 
 <footer>
@@ -395,7 +404,8 @@ async function lookupWallet() {
   document.getElementById('wh-addr').textContent = addr.slice(0,12)+'…';
 
   try {
-    // Fetch account + resources + transactions in parallel
+    const SHELBY_CONTRACT = '0x1b18363a9f1fe5e6ebf247daba5cc1c18052bb232efdc4c50f556053922d98e1';
+
     const [accRes, resRes, txRes] = await Promise.all([
       fetch(`${API}/accounts/${addr}`),
       fetch(`${API}/accounts/${addr}/resources`),
@@ -405,61 +415,64 @@ async function lookupWallet() {
     if (!accRes.ok) throw new Error('not found');
     const acc = await accRes.json();
 
-    // APT balance + ShelbyUSD balance
-    let aptBal   = '0.0000';
-    let susdBal  = '0.0000';
+    let aptBal  = '0.0000';
+    let susdBal = '0.0000';
     let resCount = 0;
 
     if (resRes.ok) {
       const resources = await resRes.json();
       resCount = resources.length;
 
-      // APT — legacy CoinStore
-      const coinStore = resources.find(r =>
+      // Show debug panel with raw resources
+      showDebug(resources);
+
+      // ── APT: legacy CoinStore ──
+      const legacyCoin = resources.find(r =>
         r.type === '0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>'
       );
-      if (coinStore) {
-        aptBal = (parseInt(coinStore.data?.coin?.value || 0) / 1e8).toFixed(4);
+      if (legacyCoin) {
+        aptBal = (parseInt(legacyCoin.data?.coin?.value || 0) / 1e8).toFixed(4);
       }
 
-      // ShelbyUSD — Fungible Asset store
-      // The FA store type is 0x1::fungible_asset::FungibleStore
-      // We look for the store whose metadata matches the ShelbyUSD contract
-      const SHELBY_CONTRACT = '0x1b18363a9f1fe5e6ebf247daba5cc1c18052bb232efdc4c50f556053922d98e1';
+      // ── APT: new Fungible Asset store ──
+      if (aptBal === '0.0000') {
+        const allFA = resources.filter(r => r.type && r.type.includes('FungibleStore'));
+        for (const fa of allFA) {
+          const meta = JSON.stringify(fa.data?.metadata || '');
+          // APT metadata address ends in 0xa or is all zeros + a
+          if (meta.includes('"0xa"') || meta.includes('aptos_coin') || meta.match(/0x0+a["}/]/)) {
+            const bal = parseInt(fa.data?.balance || 0);
+            if (bal > 0) { aptBal = (bal / 1e8).toFixed(4); break; }
+          }
+        }
+      }
 
-      // Method 1: check fungible asset stores
-      const faStores = resources.filter(r =>
-        r.type && r.type.includes('FungibleStore')
-      );
-      for (const store of faStores) {
-        const meta = store.data?.metadata?.inner || store.data?.metadata;
-        if (meta && meta.toLowerCase().includes(SHELBY_CONTRACT.toLowerCase().slice(2,20))) {
-          const raw = parseInt(store.data?.balance || store.data?.coin?.value || 0);
-          susdBal = (raw / 1e6).toFixed(4); // ShelbyUSD uses 6 decimals
+      // ── APT: fallback — biggest FA balance that isn't Shelby ──
+      if (aptBal === '0.0000') {
+        const allFA = resources.filter(r => r.type && r.type.includes('FungibleStore'));
+        for (const fa of allFA) {
+          const raw = JSON.stringify(fa);
+          if (!raw.toLowerCase().includes(SHELBY_CONTRACT.slice(2,16).toLowerCase())) {
+            const bal = parseInt(fa.data?.balance || 0);
+            if (bal > 0) { aptBal = (bal / 1e8).toFixed(4); break; }
+          }
+        }
+      }
+
+      // ── ShelbyUSD: scan all resources for contract address ──
+      const shelbyKey = SHELBY_CONTRACT.slice(2, 18).toLowerCase();
+      for (const r of resources) {
+        const raw = JSON.stringify(r).toLowerCase();
+        if (raw.includes(shelbyKey)) {
+          const val =
+            r.data?.balance ??
+            r.data?.coin?.value ??
+            r.data?.value ??
+            r.data?.amount;
+          if (val !== undefined && val !== null) {
+            susdBal = (parseInt(val) / 1e6).toFixed(4);
+          }
           break;
-        }
-      }
-
-      // Method 2: check primary_fungible_store
-      if (susdBal === '0.0000') {
-        const primaryStore = resources.find(r =>
-          r.type && r.type.includes('primary_fungible_store') &&
-          r.type.includes(SHELBY_CONTRACT)
-        );
-        if (primaryStore) {
-          const raw = parseInt(primaryStore.data?.balance || 0);
-          susdBal = (raw / 1e6).toFixed(4);
-        }
-      }
-
-      // Method 3: look for any resource mentioning the shelby contract
-      if (susdBal === '0.0000') {
-        const shelbyRes = resources.find(r =>
-          JSON.stringify(r).toLowerCase().includes(SHELBY_CONTRACT.slice(2,16).toLowerCase())
-        );
-        if (shelbyRes) {
-          const val = shelbyRes.data?.balance || shelbyRes.data?.coin?.value || shelbyRes.data?.value;
-          if (val) susdBal = (parseInt(val) / 1e6).toFixed(4);
         }
       }
     }
@@ -472,11 +485,9 @@ async function lookupWallet() {
     document.getElementById('wh-res').textContent   = resCount;
     document.getElementById('wh-addr').textContent  = addr.slice(0,14)+'…'+addr.slice(-6);
 
-    // Update top metrics to show wallet context
     document.getElementById('m-blocks-c').textContent = 'wallet loaded ✓';
     document.getElementById('m-blocks-c').className = 'mc-c pos';
 
-    // Wallet transaction history
     if (txRes.ok) {
       const txs = await txRes.json();
       if (txs.length > 0) {
@@ -500,6 +511,27 @@ async function lookupWallet() {
 }
 
 document.getElementById('wInput').addEventListener('keydown', e => { if (e.key === 'Enter') lookupWallet(); });
+
+// ── Debug helpers ────────────────────────────────────────────
+function showDebug(resources) {
+  const card = document.getElementById('debugCard');
+  const content = document.getElementById('debugContent');
+  const badge = document.getElementById('debugBadge');
+  card.style.display = 'block';
+  badge.textContent = resources.length + ' resources — click to show';
+  content.textContent = JSON.stringify(resources, null, 2);
+}
+function toggleDebug() {
+  const c = document.getElementById('debugContent');
+  const b = document.getElementById('debugBadge');
+  if (c.style.display === 'none') {
+    c.style.display = 'block';
+    b.textContent = 'click to hide';
+  } else {
+    c.style.display = 'none';
+    b.textContent = 'click to show';
+  }
+}
 
 // ── Start ────────────────────────────────────────────────────
 fetchChain();
