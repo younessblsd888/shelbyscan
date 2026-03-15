@@ -1,152 +1,285 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ShelbyScan — Shelby Network Activity Tracker</title>
-  <link rel="stylesheet" href="css/style.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ShelbyScan — Shelby Network Tracker</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0f14;--bg2:#13161e;--bg3:#1a1e28;
+  --border:rgba(255,255,255,0.07);
+  --text:#f0f0f0;--muted:#8a8fa8;
+  --blue:#185FA5;--blue-l:#B5D4F4;
+  --green:#1D9E75;--amber:#BA7517;--pink:#D4537E;--gray:#888780;
+  --r:12px;--rs:8px;
+}
+html{font-size:16px}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6}
+a{color:var(--blue-l);text-decoration:none}
+
+/* HEADER */
+.hdr{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:var(--bg2);border-bottom:.5px solid var(--border);position:sticky;top:0;z-index:100}
+.hdr-l{display:flex;align-items:center;gap:12px}
+.logo-i{width:36px;height:36px;border-radius:9px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff}
+.logo-t{font-size:17px;font-weight:600;color:var(--text)}
+.logo-s{font-size:11px;color:var(--muted)}
+.hdr-r{display:flex;align-items:center;gap:12px}
+.live{display:flex;align-items:center;gap:6px;font-size:12px;color:#5DCAA5;background:#1D9E7518;padding:4px 10px;border-radius:20px;border:.5px solid #1D9E7533}
+.dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.clk{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ext-link{font-size:12px;color:var(--muted);border:.5px solid var(--border);padding:4px 10px;border-radius:20px}
+
+/* LAYOUT */
+.wrap{max-width:1200px;margin:0 auto;padding:1.5rem 2rem 3rem;display:flex;flex-direction:column;gap:14px}
+
+/* METRICS */
+.metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.mc{background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:1.1rem 1.2rem}
+.mc-l{font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
+.mc-v{font-size:26px;font-weight:600;color:var(--text)}
+.mc-c{font-size:11px;margin-top:4px}
+.pos{color:#5DCAA5}.neu{color:var(--muted)}.neg{color:#E24B4A}
+
+/* CARD */
+.card{background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:1.1rem 1.2rem}
+.ct{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem}
+
+/* CHARTS ROW */
+.crow{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px}
+.cw{position:relative;width:100%;height:200px}
+.cw-sm{height:150px}
+.leg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+.li{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
+.ld{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0}
+
+/* SPLIT */
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
+
+/* BLOBS */
+.blist{display:flex;flex-direction:column;gap:8px}
+.bi{display:flex;align-items:center;gap:10px;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);padding:9px 12px;transition:border-color .15s;cursor:default}
+.bi:hover{border-color:rgba(255,255,255,.18)}
+.bico{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.binf{flex:1;min-width:0}
+.bn{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bm{font-size:11px;color:var(--muted);margin-top:1px}
+.bsz{font-size:11px;color:var(--muted);flex-shrink:0}
+
+/* LEADERBOARD */
+.lb{display:flex;flex-direction:column}
+.lr{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:.5px solid var(--border);font-size:13px}
+.lr:last-child{border-bottom:none}
+.rk{font-size:12px;font-weight:700;min-width:22px;text-align:center}
+.gold{color:#BA7517}.silver{color:#888780}.bronze{color:#993C1D}.other{color:var(--muted)}
+.av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
+.li2{flex:1;min-width:0}
+.ln{font-size:12px;font-weight:500;color:var(--text)}
+.lu{font-size:11px;color:var(--muted)}
+.bb{width:60px;height:4px;background:var(--bg3);border-radius:4px;overflow:hidden;flex-shrink:0}
+.bf{height:100%;border-radius:4px}
+.lp{font-size:12px;font-weight:600;color:var(--blue-l);min-width:50px;text-align:right}
+
+/* WALLET */
+.ws{display:flex;gap:8px;margin-bottom:1rem}
+.ws input{flex:1;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s}
+.ws input:focus{border-color:var(--blue)}
+.ws input::placeholder{color:var(--muted)}
+.ws button{background:var(--blue);border:none;color:#fff;font-size:13px;font-weight:500;padding:9px 20px;border-radius:var(--rs);cursor:pointer;transition:opacity .15s}
+.ws button:hover{opacity:.85}
+.wrc{background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);overflow:hidden}
+.wr{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:.5px solid var(--border);font-size:13px}
+.wr:last-child{border-bottom:none}
+.wk{color:var(--muted)}.wv{font-weight:500;color:var(--text);font-family:monospace}
+.tag{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:500}
+.tb{background:#185FA518;color:var(--blue-l);border:.5px solid #185FA533}
+.tg{background:#1D9E7518;color:#5DCAA5;border:.5px solid #1D9E7533}
+
+/* FOOTER */
+footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;border-top:.5px solid var(--border)}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .crow{grid-template-columns:1fr}
+  .split{grid-template-columns:1fr}
+}
+@media(max-width:540px){
+  .wrap{padding:1rem}
+  .hdr{padding:.75rem 1rem}
+  .mc-v{font-size:20px}
+  .ext-link{display:none}
+}
+</style>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="header">
-    <div class="header-left">
-      <div class="logo-icon">S</div>
-      <div>
-        <div class="logo-text">ShelbyScan</div>
-        <div class="logo-sub">Shelby Network Activity Tracker</div>
+<header class="hdr">
+  <div class="hdr-l">
+    <div class="logo-i">S</div>
+    <div>
+      <div class="logo-t">ShelbyScan</div>
+      <div class="logo-s">Shelby Network Activity Tracker</div>
+    </div>
+  </div>
+  <div class="hdr-r">
+    <div class="live"><div class="dot"></div>Live</div>
+    <div class="clk" id="clock"></div>
+    <a class="ext-link" href="https://shelby.xyz" target="_blank">shelby.xyz ↗</a>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- METRICS -->
+  <div class="metrics">
+    <div class="mc"><div class="mc-l">Total Blobs</div><div class="mc-v" id="m-blobs">4,821</div><div class="mc-c pos">+127 today</div></div>
+    <div class="mc"><div class="mc-l">Active Wallets</div><div class="mc-v" id="m-wallets">1,203</div><div class="mc-c pos">+43 today</div></div>
+    <div class="mc"><div class="mc-l">Network Speed</div><div class="mc-v" id="m-speed">142 ms</div><div class="mc-c neu">avg latency</div></div>
+    <div class="mc"><div class="mc-l">Storage Used</div><div class="mc-v">2.4 GB</div><div class="mc-c neu">of 10 GB cap</div></div>
+  </div>
+
+  <!-- CHARTS -->
+  <div class="crow">
+    <div class="card">
+      <div class="ct">Upload activity — last 7 days</div>
+      <div class="cw"><canvas id="actChart"></canvas></div>
+    </div>
+    <div class="card">
+      <div class="ct">File types uploaded</div>
+      <div class="leg">
+        <span class="li"><span class="ld" style="background:#185FA5"></span>Images 42%</span>
+        <span class="li"><span class="ld" style="background:#1D9E75"></span>Docs 28%</span>
+        <span class="li"><span class="ld" style="background:#BA7517"></span>Video 18%</span>
+        <span class="li"><span class="ld" style="background:#888780"></span>Other 12%</span>
+      </div>
+      <div class="cw cw-sm"><canvas id="typeChart"></canvas></div>
+    </div>
+  </div>
+
+  <!-- BLOBS + LEADERBOARD -->
+  <div class="split">
+    <div class="card">
+      <div class="ct">Recent blobs</div>
+      <div class="blist">
+        <div class="bi"><div class="bico" style="background:#185FA522">🖼</div><div class="binf"><div class="bn">photo_2025.jpg</div><div class="bm">0x3fa2…c81d · 2 min ago</div></div><div class="bsz">2.1 MB</div></div>
+        <div class="bi"><div class="bico" style="background:#1D9E7522">📄</div><div class="binf"><div class="bn">report_q1.pdf</div><div class="bm">0x9abc…12ef · 5 min ago</div></div><div class="bsz">840 KB</div></div>
+        <div class="bi"><div class="bico" style="background:#BA751722">🎬</div><div class="binf"><div class="bn">demo_clip.mp4</div><div class="bm">0x7d11…f00a · 11 min ago</div></div><div class="bsz">18.4 MB</div></div>
+        <div class="bi"><div class="bico" style="background:#185FA522">🖼</div><div class="binf"><div class="bn">screenshot.png</div><div class="bm">0x2bc9…44de · 19 min ago</div></div><div class="bsz">312 KB</div></div>
+        <div class="bi"><div class="bico" style="background:#D4537E22">🗂</div><div class="binf"><div class="bn">dataset.csv</div><div class="bm">0x5ef3…77ca · 25 min ago</div></div><div class="bsz">1.2 MB</div></div>
       </div>
     </div>
-    <div class="header-right">
-      <div class="live-badge"><div class="live-dot"></div>Live</div>
-      <div class="clock" id="clock"></div>
-      <a class="header-link" href="https://shelby.xyz" target="_blank">shelby.xyz ↗</a>
+
+    <div class="card">
+      <div class="ct">Top uploaders — leaderboard</div>
+      <div class="lb" id="lb"></div>
     </div>
-  </header>
+  </div>
 
-  <main class="container">
+  <!-- WALLET LOOKUP -->
+  <div class="card">
+    <div class="ct">Wallet lookup</div>
+    <div class="ws">
+      <input type="text" id="wInput" placeholder="Enter wallet address: 0x..." />
+      <button onclick="lookup()">Search</button>
+    </div>
+    <div id="wRes"></div>
+  </div>
 
-    <!-- METRICS -->
-    <section class="metrics">
-      <div class="metric-card">
-        <div class="metric-label">Total Blobs</div>
-        <div class="metric-value" id="m-blobs">4,821</div>
-        <div class="metric-change positive">+127 today</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">Active Wallets</div>
-        <div class="metric-value" id="m-wallets">1,203</div>
-        <div class="metric-change positive">+43 today</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">Network Speed</div>
-        <div class="metric-value" id="m-speed">142 ms</div>
-        <div class="metric-change neutral">avg latency</div>
-      </div>
-      <div class="metric-card">
-        <div class="metric-label">Storage Used</div>
-        <div class="metric-value">2.4 GB</div>
-        <div class="metric-change neutral">of 10 GB cap</div>
-      </div>
-    </section>
+</div>
 
-    <!-- CHARTS ROW -->
-    <section class="charts-row">
-      <div class="card">
-        <div class="card-title">Upload activity — last 7 days</div>
-        <div class="chart-wrap">
-          <canvas id="activityChart"></canvas>
-        </div>
-      </div>
-      <div class="card">
-        <div class="card-title">File types uploaded</div>
-        <div class="legend">
-          <span class="legend-item"><span class="legend-dot" style="background:#185FA5;"></span>Images 42%</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#1D9E75;"></span>Docs 28%</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#BA7517;"></span>Video 18%</span>
-          <span class="legend-item"><span class="legend-dot" style="background:#888780;"></span>Other 12%</span>
-        </div>
-        <div class="chart-wrap chart-wrap--sm">
-          <canvas id="typeChart"></canvas>
-        </div>
-      </div>
-    </section>
+<footer>
+  Built for <a href="https://shelby.xyz" target="_blank">Shelby Network</a> testnet &nbsp;·&nbsp;
+  Shelbynet &nbsp;·&nbsp;
+  <a href="https://twitter.com/younessbls" target="_blank">@younessbls</a>
+</footer>
 
-    <!-- BLOBS + LEADERBOARD -->
-    <section class="split-row">
+<script>
+// Clock
+function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString()}
+tick();setInterval(tick,1000);
 
-      <div class="card">
-        <div class="card-title">Recent blobs</div>
-        <div class="blob-list">
-          <div class="blob-item">
-            <div class="blob-icon blob-icon--blue">🖼</div>
-            <div class="blob-info">
-              <div class="blob-name">photo_2025.jpg</div>
-              <div class="blob-meta">0x3fa2…c81d · 2 min ago</div>
-            </div>
-            <div class="blob-size">2.1 MB</div>
-          </div>
-          <div class="blob-item">
-            <div class="blob-icon blob-icon--green">📄</div>
-            <div class="blob-info">
-              <div class="blob-name">report_q1.pdf</div>
-              <div class="blob-meta">0x9abc…12ef · 5 min ago</div>
-            </div>
-            <div class="blob-size">840 KB</div>
-          </div>
-          <div class="blob-item">
-            <div class="blob-icon blob-icon--amber">🎬</div>
-            <div class="blob-info">
-              <div class="blob-name">demo_clip.mp4</div>
-              <div class="blob-meta">0x7d11…f00a · 11 min ago</div>
-            </div>
-            <div class="blob-size">18.4 MB</div>
-          </div>
-          <div class="blob-item">
-            <div class="blob-icon blob-icon--blue">🖼</div>
-            <div class="blob-info">
-              <div class="blob-name">screenshot.png</div>
-              <div class="blob-meta">0x2bc9…44de · 19 min ago</div>
-            </div>
-            <div class="blob-size">312 KB</div>
-          </div>
-          <div class="blob-item">
-            <div class="blob-icon blob-icon--pink">🗂</div>
-            <div class="blob-info">
-              <div class="blob-name">dataset.csv</div>
-              <div class="blob-meta">0x5ef3…77ca · 25 min ago</div>
-            </div>
-            <div class="blob-size">1.2 MB</div>
-          </div>
-        </div>
-      </div>
+// Live metrics
+let blobs=4821,wallets=1203;
+setInterval(()=>{
+  blobs+=Math.floor(Math.random()*3);
+  wallets+=Math.random()>.7?1:0;
+  const spd=130+Math.floor(Math.random()*40);
+  document.getElementById('m-blobs').textContent=blobs.toLocaleString();
+  document.getElementById('m-wallets').textContent=wallets.toLocaleString();
+  document.getElementById('m-speed').textContent=spd+' ms';
+},3000);
 
-      <div class="card">
-        <div class="card-title">Top uploaders — leaderboard</div>
-        <div class="leaderboard" id="leaderboard"></div>
-      </div>
+// Bar chart
+new Chart(document.getElementById('actChart'),{
+  type:'bar',
+  data:{
+    labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    datasets:[{label:'Uploads',data:[312,489,421,567,623,389,510],
+      backgroundColor:'rgba(24,95,165,0.35)',borderColor:'#185FA5',
+      borderWidth:1,borderRadius:5}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},
+    scales:{
+      x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8a8fa8',font:{size:11}}},
+      y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8a8fa8',font:{size:11}}}
+    }
+  }
+});
 
-    </section>
+// Donut chart
+new Chart(document.getElementById('typeChart'),{
+  type:'doughnut',
+  data:{labels:['Images','Docs','Video','Other'],
+    datasets:[{data:[42,28,18,12],
+      backgroundColor:['#185FA5','#1D9E75','#BA7517','#888780'],borderWidth:0}]
+  },
+  options:{responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false}},cutout:'65%'}
+});
 
-    <!-- WALLET LOOKUP -->
-    <section class="card wallet-section">
-      <div class="card-title">Wallet lookup</div>
-      <div class="wallet-search">
-        <input type="text" id="walletInput" placeholder="Enter wallet address: 0x..." />
-        <button onclick="lookupWallet()">Search</button>
-      </div>
-      <div id="walletResult"></div>
-    </section>
+// Leaderboard
+const leaders=[
+  {name:'0x3fa2…c81d',uploads:312,pts:3120,color:'#185FA5'},
+  {name:'0x9abc…12ef',uploads:287,pts:2870,color:'#1D9E75'},
+  {name:'0x7d11…f00a',uploads:241,pts:2410,color:'#BA7517'},
+  {name:'0x2bc9…44de',uploads:198,pts:1980,color:'#D4537E'},
+  {name:'0x5ef3…77ca',uploads:155,pts:1550,color:'#888780'},
+];
+const rkc=['gold','silver','bronze','other','other'];
+const lb=document.getElementById('lb');
+leaders.forEach((l,i)=>{
+  const d=document.createElement('div');d.className='lr';
+  d.innerHTML=`
+    <div class="rk ${rkc[i]}">#${i+1}</div>
+    <div class="av" style="background:${l.color}22;color:${l.color}">${l.name.slice(2,4).toUpperCase()}</div>
+    <div class="li2"><div class="ln">${l.name}</div><div class="lu">${l.uploads} uploads</div></div>
+    <div class="bb"><div class="bf" style="width:${Math.round(l.pts/3120*100)}%;background:${l.color}"></div></div>
+    <div class="lp">${l.pts} pts</div>`;
+  lb.appendChild(d);
+});
 
-  </main>
-
-  <footer class="footer">
-    Built for <a href="https://shelby.xyz" target="_blank">Shelby Network</a> testnet · 
-    Shelbynet · 
-    <a href="https://github.com/younessbls" target="_blank">@younessbls</a>
-  </footer>
-
-  <script src="js/app.js"></script>
+// Wallet lookup
+function lookup(){
+  const v=document.getElementById('wInput').value.trim();
+  const r=document.getElementById('wRes');
+  if(!v){r.innerHTML='<p style="font-size:13px;color:var(--muted);margin-top:.5rem">Please enter a wallet address.</p>';return;}
+  const rnd=(a,b)=>Math.floor(Math.random()*(b-a+1))+a;
+  const sh=v.length>10?v.slice(0,6)+'…'+v.slice(-4):v;
+  r.innerHTML=`<div class="wrc">
+    <div class="wr"><span class="wk">Address</span><span class="wv">${sh}</span></div>
+    <div class="wr"><span class="wk">APT Balance</span><span class="wv">${rnd(10,500)} APT</span></div>
+    <div class="wr"><span class="wk">ShelbyUSD</span><span class="wv">${rnd(1,50).toFixed(4)} SUSD</span></div>
+    <div class="wr"><span class="wk">Total Blobs</span><span class="wv">${rnd(5,200)} files</span></div>
+    <div class="wr"><span class="wk">Storage Used</span><span class="wv">${rnd(10,800)} MB</span></div>
+    <div class="wr"><span class="wk">Status</span><span class="tag tg">Active</span></div>
+    <div class="wr"><span class="wk">Network</span><span class="tag tb">Shelbynet</span></div>
+  </div>`;
+}
+document.getElementById('wInput').addEventListener('keydown',e=>{if(e.key==='Enter')lookup()});
+</script>
 </body>
 </html>
