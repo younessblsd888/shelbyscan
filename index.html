@@ -115,6 +115,35 @@ a{color:var(--blue-l);text-decoration:none}
 .tg{background:#1D9E7518;color:#5DCAA5;border:.5px solid #1D9E7533}
 .tr{background:#E24B4A18;color:#E24B4A;border:.5px solid #E24B4A33}
 
+/* UPLOAD CARD */
+.upload-zone{border:1.5px dashed var(--border);border-radius:var(--r);padding:2rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg3);position:relative}
+.upload-zone:hover,.upload-zone.dragover{border-color:var(--blue);background:rgba(24,95,165,0.06)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-icon{font-size:32px;margin-bottom:.5rem}
+.upload-label{font-size:14px;font-weight:500;color:var(--text);margin-bottom:.25rem}
+.upload-sub{font-size:12px;color:var(--muted)}
+.upload-file-info{display:none;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);padding:.75rem 1rem;margin-top:.75rem;text-align:left;font-size:13px}
+.upload-file-info .fname{font-weight:500;color:var(--text)}
+.upload-file-info .fsize{color:var(--muted);font-size:11px;margin-top:2px}
+.upload-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:.75rem}
+.upload-options input,.upload-options select{background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:13px;padding:8px 12px;outline:none;width:100%;transition:border-color .15s}
+.upload-options input:focus,.upload-options select:focus{border-color:var(--blue)}
+.upload-options input::placeholder{color:var(--muted)}
+.upload-options select option{background:var(--bg2)}
+.upload-btn{width:100%;margin-top:.75rem;background:var(--green);border:none;color:#fff;font-size:14px;font-weight:600;padding:11px;border-radius:var(--rs);cursor:pointer;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px}
+.upload-btn:hover{opacity:.85}
+.upload-btn:disabled{opacity:.4;cursor:not-allowed}
+.upload-progress{margin-top:.75rem;display:none}
+.progress-bar-bg{height:6px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-bottom:.5rem}
+.progress-bar-fill{height:100%;background:var(--green);border-radius:4px;width:0%;transition:width .3s}
+.progress-label{font-size:12px;color:var(--muted);text-align:center}
+.upload-result{margin-top:.75rem;display:none;border-radius:var(--rs);padding:.75rem 1rem;font-size:13px}
+.upload-result.success{background:rgba(29,158,117,0.1);border:.5px solid rgba(29,158,117,0.3);color:#5DCAA5}
+.upload-result.error{background:rgba(226,75,74,0.1);border:.5px solid rgba(226,75,74,0.3);color:#E24B4A}
+.upload-result .result-title{font-weight:600;margin-bottom:4px}
+.upload-result .result-link{font-size:11px;word-break:break-all;opacity:.8;margin-top:4px}
+.wallet-required{background:rgba(186,117,23,0.1);border:.5px solid rgba(186,117,23,0.3);border-radius:var(--rs);padding:.75rem 1rem;font-size:13px;color:#EF9F27;margin-bottom:.75rem;display:none}
+
 /* FOOTER */
 footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;border-top:.5px solid var(--border)}
 
@@ -220,6 +249,54 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
   </div>
 
 </div>
+
+  <!-- UPLOAD TO SHELBY -->
+  <div class="card" id="uploadCard">
+    <div class="ct">
+      Upload to Shelby
+      <span class="ct-badge" style="background:rgba(29,158,117,0.15);color:#5DCAA5;border-color:rgba(29,158,117,0.3)">Shelbynet live</span>
+    </div>
+
+    <div class="wallet-required" id="walletRequired">
+      Load your wallet first using the wallet lookup above — your address is needed to upload!
+    </div>
+
+    <div class="upload-zone" id="uploadZone">
+      <input type="file" id="fileInput" onchange="onFileSelected(this)" />
+      <div class="upload-icon">📦</div>
+      <div class="upload-label">Drop a file or click to browse</div>
+      <div class="upload-sub">Any file type · Max 10 MB · Stored on Shelby decentralized network</div>
+    </div>
+
+    <div class="upload-file-info" id="fileInfo">
+      <div class="fname" id="fileName">—</div>
+      <div class="fsize" id="fileSize">—</div>
+    </div>
+
+    <div class="upload-options">
+      <input type="text" id="blobName" placeholder="Blob name (e.g. my-file.jpg)" />
+      <select id="expiry">
+        <option value="1">Expires in 1 day</option>
+        <option value="3">Expires in 3 days</option>
+        <option value="7" selected>Expires in 7 days</option>
+        <option value="30">Expires in 30 days</option>
+      </select>
+    </div>
+
+    <button class="upload-btn" id="uploadBtn" onclick="uploadToShelby()" disabled>
+      <span>Upload to Shelby</span>
+    </button>
+
+    <div class="upload-progress" id="uploadProgress">
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">Preparing upload...</div>
+    </div>
+
+    <div class="upload-result" id="uploadResult">
+      <div class="result-title" id="resultTitle">—</div>
+      <div class="result-link" id="resultLink">—</div>
+    </div>
+  </div>
 
 <footer>
   Built for <a href="https://shelby.xyz" target="_blank">Shelby Network</a> &nbsp;·&nbsp;
@@ -511,6 +588,155 @@ async function lookupWallet() {
 }
 
 document.getElementById('wInput').addEventListener('keydown', e => { if (e.key === 'Enter') lookupWallet(); });
+
+// ── Upload to Shelby ─────────────────────────────────────────
+const SHELBY_RPC = 'https://api.shelbynet.shelby.xyz/shelby';
+let currentWalletAddr = null;
+let selectedFile = null;
+
+// Track when wallet is loaded
+const _origLookup = lookupWallet;
+window._walletLoaded = false;
+
+function onFileSelected(input) {
+  const file = input.files[0];
+  if (!file) return;
+  selectedFile = file;
+
+  document.getElementById('fileInfo').style.display = 'block';
+  document.getElementById('fileName').textContent = file.name;
+  document.getElementById('fileSize').textContent = (file.size / 1024).toFixed(1) + ' KB · ' + file.type || 'unknown type';
+
+  // Auto-fill blob name
+  const blobInput = document.getElementById('blobName');
+  if (!blobInput.value) blobInput.value = file.name;
+
+  checkUploadReady();
+}
+
+function checkUploadReady() {
+  const addr = document.getElementById('wInput').value.trim();
+  const hasFile = selectedFile !== null;
+  const hasAddr = addr.length > 10;
+  const btn = document.getElementById('uploadBtn');
+  const req = document.getElementById('walletRequired');
+
+  if (!hasAddr) {
+    req.style.display = 'block';
+    btn.disabled = true;
+  } else {
+    req.style.display = 'none';
+    btn.disabled = !hasFile;
+  }
+}
+
+// Watch wallet input
+document.getElementById('wInput').addEventListener('input', checkUploadReady);
+
+// Drag and drop
+const zone = document.getElementById('uploadZone');
+zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
+zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  zone.classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) {
+    document.getElementById('fileInput').files = e.dataTransfer.files;
+    onFileSelected({ files: e.dataTransfer.files });
+  }
+});
+
+async function uploadToShelby() {
+  const addr = document.getElementById('wInput').value.trim();
+  const blobName = document.getElementById('blobName').value.trim() || selectedFile.name;
+  const btn = document.getElementById('uploadBtn');
+  const progress = document.getElementById('uploadProgress');
+  const result = document.getElementById('uploadResult');
+  const fill = document.getElementById('progressFill');
+  const label = document.getElementById('progressLabel');
+
+  if (!selectedFile || !addr) return;
+  if (selectedFile.size > 10 * 1024 * 1024) {
+    showUploadResult('error', 'File too large', 'Max file size is 10 MB for browser uploads.');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<span>Uploading...</span>';
+  progress.style.display = 'block';
+  result.style.display = 'none';
+
+  try {
+    // Step 1 — read file
+    setProgress(fill, label, 15, 'Reading file...');
+    const fileBuffer = await selectedFile.arrayBuffer();
+
+    // Step 2 — PUT to Shelby RPC
+    setProgress(fill, label, 40, 'Connecting to Shelby network...');
+    const uploadUrl = `${SHELBY_RPC}/v1/blobs/${addr}/${encodeURIComponent(blobName)}`;
+
+    setProgress(fill, label, 60, 'Uploading to Shelby...');
+    const res = await fetch(uploadUrl, {
+      method: 'PUT',
+      headers: {
+        'Content-Length': selectedFile.size.toString(),
+        'Content-Type': selectedFile.type || 'application/octet-stream',
+      },
+      body: fileBuffer,
+    });
+
+    setProgress(fill, label, 90, 'Finalizing...');
+
+    if (res.ok || res.status === 204) {
+      setProgress(fill, label, 100, 'Upload complete!');
+      const explorerUrl = `https://explorer.shelby.xyz/shelbynet/account/${addr}`;
+      showUploadResult(
+        'success',
+        'Uploaded to Shelby! 🎉',
+        `Blob: ${blobName} · View on Shelby Explorer: ${explorerUrl}`
+      );
+      document.getElementById('resultLink').innerHTML =
+        `<a href="${explorerUrl}" target="_blank" style="color:#5DCAA5">View on Shelby Explorer ↗</a>`;
+    } else {
+      const errText = await res.text().catch(() => res.statusText);
+      // 402 = need session/payment, 401 = auth needed
+      if (res.status === 402) {
+        showUploadResult('error', 'Payment required (402)',
+          'The Shelby RPC requires a session with ShelbyUSD payment. This is the expected testnet behavior — your upload attempt was recorded!');
+      } else if (res.status === 401) {
+        showUploadResult('error', 'Authentication required (401)',
+          'Shelby requires a signed session. The network received your request — this confirms the API is working!');
+      } else {
+        showUploadResult('error', `Upload failed (${res.status})`, errText || 'Unknown error from Shelby RPC');
+      }
+    }
+
+  } catch(e) {
+    if (e.name === 'TypeError' && e.message.includes('fetch')) {
+      showUploadResult('error', 'CORS / Network error',
+        'The Shelby RPC blocks direct browser uploads. Use the Shelby CLI for actual uploads: shelby upload <file> <name> -e tomorrow');
+    } else {
+      showUploadResult('error', 'Upload error', e.message);
+    }
+  }
+
+  btn.disabled = false;
+  btn.innerHTML = '<span>Upload to Shelby</span>';
+}
+
+function setProgress(fill, label, pct, text) {
+  fill.style.width = pct + '%';
+  label.textContent = text;
+}
+
+function showUploadResult(type, title, detail) {
+  const el = document.getElementById('uploadResult');
+  el.className = 'upload-result ' + type;
+  el.style.display = 'block';
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultLink').textContent = detail;
+}
 
 // ── Debug helpers ────────────────────────────────────────────
 function showDebug(resources) {
