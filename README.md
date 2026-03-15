@@ -52,7 +52,7 @@ const data = await res.json();
 
 ## Built by
 
-[@younessbls](https://twitter.com/younessbls) — Shelby testnet contributor
+[@younessblsd](https://twitter.com/younessblsd) — Shelby testnet contributor
 
 ---
 
