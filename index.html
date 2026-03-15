@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>ShelbyScan — Shelby Network Tracker</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
@@ -12,10 +12,9 @@
   --border:rgba(255,255,255,0.07);
   --text:#f0f0f0;--muted:#8a8fa8;
   --blue:#185FA5;--blue-l:#B5D4F4;
-  --green:#1D9E75;--amber:#BA7517;--pink:#D4537E;--gray:#888780;
+  --green:#1D9E75;--amber:#BA7517;--pink:#D4537E;
   --r:12px;--rs:8px;
 }
-html{font-size:16px}
 body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;min-height:100vh;line-height:1.6}
 a{color:var(--blue-l);text-decoration:none}
 
@@ -23,12 +22,12 @@ a{color:var(--blue-l);text-decoration:none}
 .hdr{display:flex;align-items:center;justify-content:space-between;padding:1rem 2rem;background:var(--bg2);border-bottom:.5px solid var(--border);position:sticky;top:0;z-index:100}
 .hdr-l{display:flex;align-items:center;gap:12px}
 .logo-i{width:36px;height:36px;border-radius:9px;background:var(--blue);display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff}
-.logo-t{font-size:17px;font-weight:600;color:var(--text)}
+.logo-t{font-size:17px;font-weight:600}
 .logo-s{font-size:11px;color:var(--muted)}
 .hdr-r{display:flex;align-items:center;gap:12px}
 .live{display:flex;align-items:center;gap:6px;font-size:12px;color:#5DCAA5;background:#1D9E7518;padding:4px 10px;border-radius:20px;border:.5px solid #1D9E7533}
-.dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;animation:pulse 1.5s infinite}
 .live.err{color:#E24B4A;background:#E24B4A18;border-color:#E24B4A33}
+.dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;animation:pulse 1.5s infinite}
 .live.err .dot{background:#E24B4A}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 .clk{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
@@ -37,26 +36,45 @@ a{color:var(--blue-l);text-decoration:none}
 /* LAYOUT */
 .wrap{max-width:1200px;margin:0 auto;padding:1.5rem 2rem 3rem;display:flex;flex-direction:column;gap:14px}
 
+/* WALLET HERO — top of page */
+.wallet-hero{background:var(--bg2);border:.5px solid var(--blue);border-radius:var(--r);padding:1.2rem 1.4rem}
+.wh-title{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
+.wh-search{display:flex;gap:8px;margin-bottom:.75rem}
+.wh-search input{flex:1;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:13px;padding:9px 14px;outline:none;transition:border-color .15s}
+.wh-search input:focus{border-color:var(--blue)}
+.wh-search input::placeholder{color:var(--muted)}
+.wh-search button{background:var(--blue);border:none;color:#fff;font-size:13px;font-weight:600;padding:9px 22px;border-radius:var(--rs);cursor:pointer;transition:opacity .15s;white-space:nowrap}
+.wh-search button:hover{opacity:.85}
+.wh-search button:disabled{opacity:.5;cursor:not-allowed}
+.wh-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.wh-stat{background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);padding:.75rem 1rem}
+.wh-stat-l{font-size:11px;color:var(--muted);margin-bottom:4px}
+.wh-stat-v{font-size:18px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.wh-stat-s{font-size:11px;color:var(--muted);margin-top:2px;font-family:monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.shelby-stat{border-color:rgba(29,158,117,0.35)!important;background:rgba(29,158,117,0.05)!important}
+.shelby-dot{width:7px;height:7px;border-radius:50%;background:#1D9E75;display:inline-block;flex-shrink:0}
+.wh-empty{text-align:center;padding:.5rem;font-size:13px;color:var(--muted)}
+
 /* METRICS */
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 .mc{background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:1.1rem 1.2rem;position:relative;overflow:hidden}
 .mc-l{font-size:11px;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em}
-.mc-v{font-size:26px;font-weight:600;color:var(--text);transition:all .3s}
+.mc-v{font-size:24px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
 .mc-c{font-size:11px;margin-top:4px}
 .pos{color:#5DCAA5}.neu{color:var(--muted)}.neg{color:#E24B4A}
-.loading-bar{position:absolute;bottom:0;left:0;height:2px;width:100%;background:linear-gradient(90deg,transparent,var(--blue),transparent);animation:loading 1.5s infinite;display:none}
-.mc.fetching .loading-bar{display:block}
-@keyframes loading{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
+.shimmer{position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(255,255,255,.03) 50%,transparent 100%);animation:shim 1.5s infinite;display:none}
+.mc.loading .shimmer{display:block}
+@keyframes shim{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 
 /* CARD */
 .card{background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:1.1rem 1.2rem}
-.ct{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between}
-.ct-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:#185FA518;color:var(--blue-l);border:.5px solid #185FA533;text-transform:none;letter-spacing:0;font-weight:500}
+.ct{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;gap:8px}
+.ct-badge{font-size:10px;padding:2px 8px;border-radius:20px;background:#185FA518;color:var(--blue-l);border:.5px solid #185FA533;text-transform:none;letter-spacing:0;font-weight:500;flex-shrink:0}
 
-/* CHARTS ROW */
-.crow{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:14px}
+/* CHARTS */
+.crow{display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:14px}
 .cw{position:relative;width:100%;height:200px}
-.cw-sm{height:150px}
+.cw-sm{height:155px}
 .leg{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
 .li{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--muted)}
 .ld{width:10px;height:10px;border-radius:2px;display:inline-block;flex-shrink:0}
@@ -64,75 +82,54 @@ a{color:var(--blue-l);text-decoration:none}
 /* SPLIT */
 .split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:14px}
 
-/* NETWORK STATS */
-.nstats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:1rem}
-.ns{background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);padding:.75rem 1rem}
-.ns-l{font-size:11px;color:var(--muted);margin-bottom:4px}
-.ns-v{font-size:16px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
-
 /* TX LIST */
 .txlist{display:flex;flex-direction:column;gap:6px}
-.txi{display:flex;align-items:center;gap:10px;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);padding:9px 12px;transition:border-color .15s;cursor:default}
+.txi{display:flex;align-items:center;gap:10px;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);padding:9px 12px;transition:border-color .15s}
 .txi:hover{border-color:rgba(255,255,255,.18)}
 .tx-ico{width:30px;height:30px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
 .tx-inf{flex:1;min-width:0}
 .tx-hash{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:monospace}
 .tx-meta{font-size:11px;color:var(--muted);margin-top:1px}
 .tx-type{font-size:10px;padding:2px 7px;border-radius:20px;font-weight:500;flex-shrink:0}
-.tt-user{background:#185FA518;color:var(--blue-l);border:.5px solid #185FA533}
-.tt-block{background:#1D9E7518;color:#5DCAA5;border:.5px solid #1D9E7533}
-.tt-state{background:#BA751718;color:#EF9F27;border:.5px solid #BA751733}
+.tt-u{background:#185FA518;color:var(--blue-l);border:.5px solid #185FA533}
+.tt-b{background:#1D9E7518;color:#5DCAA5;border:.5px solid #1D9E7533}
+.tt-s{background:#BA751718;color:#EF9F27;border:.5px solid #BA751733}
 
 /* LEADERBOARD */
-.lb{display:flex;flex-direction:column}
-.lr{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:.5px solid var(--border);font-size:13px}
+.lb-list{display:flex;flex-direction:column}
+.lr{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:.5px solid var(--border)}
 .lr:last-child{border-bottom:none}
 .rk{font-size:12px;font-weight:700;min-width:22px;text-align:center}
-.gold{color:#BA7517}.silver{color:#888780}.bronze{color:#993C1D}.other{color:var(--muted)}
+.gold{color:#BA7517}.silver{color:#888780}.bronze{color:#993C1D}.other-r{color:var(--muted)}
 .av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0}
 .li2{flex:1;min-width:0}
 .ln{font-size:12px;font-weight:500;color:var(--text)}
 .lu{font-size:11px;color:var(--muted)}
-.bb{width:60px;height:4px;background:var(--bg3);border-radius:4px;overflow:hidden;flex-shrink:0}
+.bb{width:55px;height:4px;background:var(--bg3);border-radius:4px;overflow:hidden;flex-shrink:0}
 .bf{height:100%;border-radius:4px}
 .lp{font-size:12px;font-weight:600;color:var(--blue-l);min-width:50px;text-align:right}
 
-/* WALLET */
-.ws{display:flex;gap:8px;margin-bottom:1rem}
-.ws input{flex:1;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:13px;padding:9px 12px;outline:none;transition:border-color .15s}
-.ws input:focus{border-color:var(--blue)}
-.ws input::placeholder{color:var(--muted)}
-.ws button{background:var(--blue);border:none;color:#fff;font-size:13px;font-weight:500;padding:9px 20px;border-radius:var(--rs);cursor:pointer;transition:opacity .15s}
-.ws button:hover{opacity:.85}
-.ws button:disabled{opacity:.5;cursor:not-allowed}
-.wrc{background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);overflow:hidden}
-.wr{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;border-bottom:.5px solid var(--border);font-size:13px}
-.wr:last-child{border-bottom:none}
-.wk{color:var(--muted)}.wv{font-weight:500;color:var(--text);font-family:monospace;font-size:12px;word-break:break-all;text-align:right;max-width:60%}
+/* TAG */
 .tag{font-size:11px;padding:2px 9px;border-radius:20px;font-weight:500}
 .tb{background:#185FA518;color:var(--blue-l);border:.5px solid #185FA533}
 .tg{background:#1D9E7518;color:#5DCAA5;border:.5px solid #1D9E7533}
 .tr{background:#E24B4A18;color:#E24B4A;border:.5px solid #E24B4A33}
 
-/* API NOTE */
-.api-note{font-size:11px;color:var(--muted);margin-top:.5rem;padding:.5rem .75rem;background:var(--bg3);border-radius:var(--rs);border-left:2px solid var(--blue)}
-
 /* FOOTER */
 footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;border-top:.5px solid var(--border)}
 
-/* RESPONSIVE */
 @media(max-width:900px){
   .metrics{grid-template-columns:repeat(2,minmax(0,1fr))}
   .crow{grid-template-columns:1fr}
   .split{grid-template-columns:1fr}
-  .nstats{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .wh-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 @media(max-width:540px){
   .wrap{padding:1rem}
   .hdr{padding:.75rem 1rem}
-  .mc-v{font-size:20px}
+  .mc-v{font-size:18px}
   .ext-link{display:none}
-  .nstats{grid-template-columns:1fr 1fr}
+  .wh-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
 </style>
 </head>
@@ -147,7 +144,7 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
     </div>
   </div>
   <div class="hdr-r">
-    <div class="live" id="liveStatus"><div class="dot"></div><span id="liveText">Live</span></div>
+    <div class="live" id="liveStatus"><div class="dot"></div><span id="liveText">Connecting...</span></div>
     <div class="clk" id="clock"></div>
     <a class="ext-link" href="https://shelby.xyz" target="_blank">shelby.xyz ↗</a>
   </div>
@@ -155,155 +152,128 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
 
 <div class="wrap">
 
-  <!-- METRICS -->
-  <div class="metrics">
-    <div class="mc fetching" id="mc-blocks">
-      <div class="mc-l">Block Height</div>
-      <div class="mc-v" id="m-blocks">—</div>
-      <div class="mc-c neu" id="m-blocks-sub">fetching...</div>
-      <div class="loading-bar"></div>
+  <!-- WALLET HERO -->
+  <div class="wallet-hero">
+    <div class="wh-title">Wallet lookup — updates the whole dashboard</div>
+    <div class="wh-search">
+      <input type="text" id="wInput" placeholder="Paste your full wallet address: 0x..." />
+      <button id="wBtn" onclick="lookupWallet()">Load Wallet</button>
     </div>
-    <div class="mc fetching" id="mc-epoch">
-      <div class="mc-l">Current Epoch</div>
-      <div class="mc-v" id="m-epoch">—</div>
-      <div class="mc-c neu" id="m-epoch-sub">fetching...</div>
-      <div class="loading-bar"></div>
-    </div>
-    <div class="mc fetching" id="mc-ledger">
-      <div class="mc-l">Ledger Version</div>
-      <div class="mc-v" id="m-ledger">—</div>
-      <div class="mc-c neu" id="m-ledger-sub">fetching...</div>
-      <div class="loading-bar"></div>
-    </div>
-    <div class="mc fetching" id="mc-tps">
-      <div class="mc-l">Est. TPS</div>
-      <div class="mc-v" id="m-tps">—</div>
-      <div class="mc-c neu">transactions/sec</div>
-      <div class="loading-bar"></div>
+    <div class="wh-grid" id="whGrid">
+      <div class="wh-stat"><div class="wh-stat-l">APT Balance</div><div class="wh-stat-v" id="wh-apt">—</div><div class="wh-stat-s">Aptos coin</div></div>
+      <div class="wh-stat shelby-stat"><div class="wh-stat-l" style="display:flex;align-items:center;gap:5px;"><span class="shelby-dot"></span>ShelbyUSD Balance</div><div class="wh-stat-v" id="wh-susd">—</div><div class="wh-stat-s">SHELBY_USD</div></div>
+      <div class="wh-stat"><div class="wh-stat-l">Transactions</div><div class="wh-stat-v" id="wh-seq">—</div><div class="wh-stat-s">sequence number</div></div>
+      <div class="wh-stat"><div class="wh-stat-l">Resources</div><div class="wh-stat-v" id="wh-res">—</div><div class="wh-stat-s" id="wh-addr">enter address above</div></div>
     </div>
   </div>
 
-  <!-- NETWORK CARD -->
-  <div class="card">
-    <div class="ct">
-      <span>Network stats <span style="color:var(--blue-l);font-size:10px;font-weight:400;margin-left:6px">api.testnet.aptoslabs.com</span></span>
-      <span class="ct-badge" id="lastUpdate">updating...</span>
-    </div>
-    <div class="nstats">
-      <div class="ns"><div class="ns-l">Chain ID</div><div class="ns-v" id="n-chain">—</div></div>
-      <div class="ns"><div class="ns-l">Node Role</div><div class="ns-v" id="n-role">—</div></div>
-      <div class="ns"><div class="ns-l">Oldest Block</div><div class="ns-v" id="n-oldest">—</div></div>
-    </div>
+  <!-- NETWORK METRICS -->
+  <div class="metrics">
+    <div class="mc loading" id="mc1"><div class="mc-l">Block Height</div><div class="mc-v" id="m-blocks">—</div><div class="mc-c neu" id="m-blocks-c">fetching...</div><div class="shimmer"></div></div>
+    <div class="mc loading" id="mc2"><div class="mc-l">Current Epoch</div><div class="mc-v" id="m-epoch">—</div><div class="mc-c neu">Aptos testnet</div><div class="shimmer"></div></div>
+    <div class="mc loading" id="mc3"><div class="mc-l">Ledger Version</div><div class="mc-v" id="m-ledger">—</div><div class="mc-c neu" id="m-ledger-c">fetching...</div><div class="shimmer"></div></div>
+    <div class="mc loading" id="mc4"><div class="mc-l">Live TPS</div><div class="mc-v" id="m-tps">—</div><div class="mc-c neu">txns / sec</div><div class="shimmer"></div></div>
   </div>
 
   <!-- CHARTS -->
   <div class="crow">
     <div class="card">
-      <div class="ct">Block growth — last 10 snapshots <span class="ct-badge">real-time</span></div>
+      <div class="ct">Block height — live <span class="ct-badge" id="chartBadge">updating...</span></div>
       <div class="cw"><canvas id="blockChart"></canvas></div>
     </div>
     <div class="card">
-      <div class="ct">Transaction types</div>
+      <div class="ct">Transaction mix</div>
       <div class="leg">
-        <span class="li"><span class="ld" style="background:#185FA5"></span>User txns</span>
-        <span class="li"><span class="ld" style="background:#1D9E75"></span>Block metadata</span>
-        <span class="li"><span class="ld" style="background:#BA7517"></span>State checkpoint</span>
+        <span class="li"><span class="ld" style="background:#185FA5"></span>User</span>
+        <span class="li"><span class="ld" style="background:#1D9E75"></span>Block meta</span>
+        <span class="li"><span class="ld" style="background:#BA7517"></span>State</span>
       </div>
       <div class="cw cw-sm"><canvas id="typeChart"></canvas></div>
     </div>
   </div>
 
-  <!-- RECENT TXS + LEADERBOARD -->
+  <!-- TXS + LEADERBOARD -->
   <div class="split">
     <div class="card">
       <div class="ct">Recent transactions <span class="ct-badge" id="txBadge">loading...</span></div>
-      <div class="txlist" id="txList">
-        <div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px">Fetching transactions...</div>
-      </div>
+      <div class="txlist" id="txList"><div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px">Fetching...</div></div>
     </div>
-
     <div class="card">
-      <div class="ct">Top uploaders — leaderboard</div>
-      <div class="lb" id="lb"></div>
+      <div class="ct">Shelby leaderboard <span class="ct-badge">testnet</span></div>
+      <div class="lb-list" id="lb"></div>
     </div>
   </div>
 
-  <!-- WALLET LOOKUP -->
-  <div class="card">
-    <div class="ct">Wallet lookup <span style="font-size:10px;color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0">— real data from Aptos testnet</span></div>
-    <div class="ws">
-      <input type="text" id="wInput" placeholder="Enter wallet address: 0x..." />
-      <button id="wBtn" onclick="lookup()">Search</button>
-    </div>
-    <div id="wRes"></div>
-    <div class="api-note">Try your wallet: <strong style="color:var(--blue-l)">0xfc2a...5385</strong> — paste your full Petra wallet address above!</div>
+  <!-- WALLET TX HISTORY -->
+  <div class="card" id="walletTxCard" style="display:none">
+    <div class="ct">Wallet transaction history <span class="ct-badge" id="walletTxBadge">—</span></div>
+    <div class="txlist" id="walletTxList"></div>
   </div>
 
 </div>
 
 <footer>
-  Built for <a href="https://shelby.xyz" target="_blank">Shelby Network</a> testnet &nbsp;·&nbsp;
-  Data: <a href="https://api.testnet.aptoslabs.com/v1" target="_blank">Aptos Testnet API</a> &nbsp;·&nbsp;
+  Built for <a href="https://shelby.xyz" target="_blank">Shelby Network</a> &nbsp;·&nbsp;
+  API: <a href="https://api.testnet.staging.aptoslabs.com/v1" target="_blank">api.testnet.staging.aptoslabs.com</a> &nbsp;·&nbsp;
   <a href="https://twitter.com/younessbls" target="_blank">@younessbls</a>
 </footer>
 
 <script>
-const API = 'https://api.testnet.aptoslabs.com/v1';
+const API = 'https://api.testnet.staging.aptoslabs.com/v1';
 
-// Clock
-function tick(){document.getElementById('clock').textContent=new Date().toLocaleTimeString()}
-tick(); setInterval(tick,1000);
+// ── Clock ────────────────────────────────────────────────────
+function tick(){ document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }
+tick(); setInterval(tick, 1000);
 
-// Chart setup
-const blockLabels = [], blockData = [];
-const blockChart = new Chart(document.getElementById('blockChart'),{
-  type:'line',
-  data:{
-    labels: blockLabels,
-    datasets:[{
-      label:'Block Height',
-      data: blockData,
-      borderColor:'#185FA5',
-      backgroundColor:'rgba(24,95,165,0.1)',
-      borderWidth:2,
-      pointRadius:3,
-      pointBackgroundColor:'#185FA5',
-      fill:true,
-      tension:0.4
+// ── Block chart ──────────────────────────────────────────────
+const bLabels = [], bData = [];
+const blockChart = new Chart(document.getElementById('blockChart'), {
+  type: 'line',
+  data: {
+    labels: bLabels,
+    datasets: [{
+      data: bData,
+      borderColor: '#185FA5',
+      backgroundColor: 'rgba(24,95,165,0.12)',
+      borderWidth: 2,
+      pointRadius: 3,
+      pointBackgroundColor: '#185FA5',
+      fill: true, tension: 0.4
     }]
   },
-  options:{
-    responsive:true, maintainAspectRatio:false,
-    plugins:{legend:{display:false}},
-    scales:{
-      x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8a8fa8',font:{size:10},maxTicksLimit:6}},
-      y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#8a8fa8',font:{size:10},callback:v=>(v/1e6).toFixed(1)+'M'}}
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8a8fa8', font: { size: 10 }, maxTicksLimit: 8 } },
+      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8a8fa8', font: { size: 10 }, callback: v => (v/1e6).toFixed(2)+'M' } }
     }
   }
 });
 
-const typeChart = new Chart(document.getElementById('typeChart'),{
-  type:'doughnut',
-  data:{
-    labels:['User txns','Block metadata','State checkpoint'],
-    datasets:[{data:[68,24,8],backgroundColor:['#185FA5','#1D9E75','#BA7517'],borderWidth:0}]
+// ── Type chart ───────────────────────────────────────────────
+const typeChart = new Chart(document.getElementById('typeChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['User', 'Block meta', 'State'],
+    datasets: [{ data: [68, 24, 8], backgroundColor: ['#185FA5','#1D9E75','#BA7517'], borderWidth: 0 }]
   },
-  options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},cutout:'65%'}
+  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '65%' }
 });
 
-// Leaderboard (Shelby contributors - simulated points)
-const leaders=[
-  {name:'0x3fa2…c81d',uploads:312,pts:3120,color:'#185FA5'},
-  {name:'0x9abc…12ef',uploads:287,pts:2870,color:'#1D9E75'},
-  {name:'0x7d11…f00a',uploads:241,pts:2410,color:'#BA7517'},
-  {name:'0x2bc9…44de',uploads:198,pts:1980,color:'#D4537E'},
-  {name:'0x5ef3…77ca',uploads:155,pts:1550,color:'#888780'},
+// ── Leaderboard ──────────────────────────────────────────────
+const leaders = [
+  { name:'0x3fa2…c81d', uploads:312, pts:3120, color:'#185FA5' },
+  { name:'0x9abc…12ef', uploads:287, pts:2870, color:'#1D9E75' },
+  { name:'0x7d11…f00a', uploads:241, pts:2410, color:'#BA7517' },
+  { name:'0x2bc9…44de', uploads:198, pts:1980, color:'#D4537E' },
+  { name:'0x5ef3…77ca', uploads:155, pts:1550, color:'#888780' },
 ];
-const rkc=['gold','silver','bronze','other','other'];
-const lb=document.getElementById('lb');
-leaders.forEach((l,i)=>{
-  const d=document.createElement('div'); d.className='lr';
-  d.innerHTML=`
+const rkc = ['gold','silver','bronze','other-r','other-r'];
+const lb = document.getElementById('lb');
+leaders.forEach((l,i) => {
+  const d = document.createElement('div'); d.className = 'lr';
+  d.innerHTML = `
     <div class="rk ${rkc[i]}">#${i+1}</div>
     <div class="av" style="background:${l.color}22;color:${l.color}">${l.name.slice(2,4).toUpperCase()}</div>
     <div class="li2"><div class="ln">${l.name}</div><div class="lu">${l.uploads} uploads</div></div>
@@ -312,180 +282,230 @@ leaders.forEach((l,i)=>{
   lb.appendChild(d);
 });
 
-// ── REAL API CALLS ────────────────────────────────────────────
-let prevLedger = 0, prevTime = 0;
+// ── Chain info ───────────────────────────────────────────────
+let prevLedger = 0, prevTs = 0;
 
-async function fetchChainInfo() {
+async function fetchChain() {
   try {
-    const res = await fetch(`${API}`);
-    const d = await res.json();
+    const r = await fetch(API);
+    const d = await r.json();
 
-    const blocks = parseInt(d.block_height);
-    const epoch  = parseInt(d.epoch);
-    const ledger = parseInt(d.ledger_version);
-    const now    = Date.now();
+    const blocks  = parseInt(d.block_height);
+    const epoch   = parseInt(d.epoch);
+    const ledger  = parseInt(d.ledger_version);
+    const nowMs   = Date.now();
 
-    // TPS estimate
+    // TPS
     let tps = '—';
-    if (prevLedger > 0 && prevTime > 0) {
-      const diff = ledger - prevLedger;
-      const secs = (now - prevTime) / 1000;
-      tps = Math.round(diff / secs).toLocaleString();
+    if (prevLedger && prevTs) {
+      tps = Math.round((ledger - prevLedger) / ((nowMs - prevTs) / 1000)).toLocaleString();
     }
-    prevLedger = ledger;
-    prevTime = now;
+    prevLedger = ledger; prevTs = nowMs;
 
-    // Update metrics
-    document.getElementById('m-blocks').textContent = blocks.toLocaleString();
-    document.getElementById('m-blocks-sub').textContent = '+' + Math.floor(Math.random()*3+1) + ' last 3s';
-    document.getElementById('m-blocks-sub').className = 'mc-c pos';
+    document.getElementById('m-blocks').textContent  = blocks.toLocaleString();
+    document.getElementById('m-blocks-c').textContent = 'live';
+    document.getElementById('m-blocks-c').className   = 'mc-c pos';
+    document.getElementById('m-epoch').textContent   = epoch.toLocaleString();
+    document.getElementById('m-ledger').textContent  = (ledger/1e9).toFixed(3)+'B';
+    document.getElementById('m-tps').textContent     = tps;
 
-    document.getElementById('m-epoch').textContent = epoch.toLocaleString();
-    document.getElementById('m-epoch-sub').textContent = 'Aptos testnet';
-    document.getElementById('m-epoch-sub').className = 'mc-c neu';
-
-    document.getElementById('m-ledger').textContent = (ledger/1e9).toFixed(3) + 'B';
-    document.getElementById('m-ledger-sub').textContent = ledger.toLocaleString();
-    document.getElementById('m-ledger-sub').className = 'mc-c neu';
-
-    document.getElementById('m-tps').textContent = tps;
-
-    // Network stats
-    document.getElementById('n-chain').textContent = d.chain_id;
-    document.getElementById('n-role').textContent = d.node_role.replace('_',' ');
-    document.getElementById('n-oldest').textContent = parseInt(d.oldest_block_height).toLocaleString();
-
-    // Block chart
+    // Chart
     const t = new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    blockLabels.push(t);
-    blockData.push(blocks);
-    if (blockLabels.length > 10) { blockLabels.shift(); blockData.shift(); }
+    bLabels.push(t); bData.push(blocks);
+    if (bLabels.length > 12) { bLabels.shift(); bData.shift(); }
     blockChart.update('none');
 
-    // Remove fetching state
-    ['mc-blocks','mc-epoch','mc-ledger','mc-tps'].forEach(id=>{
-      document.getElementById(id).classList.remove('fetching');
-    });
+    document.getElementById('chartBadge').textContent = 'updated ' + t;
+    ['mc1','mc2','mc3','mc4'].forEach(id => document.getElementById(id).classList.remove('loading'));
 
-    // Update badge
-    document.getElementById('lastUpdate').textContent = 'updated ' + new Date().toLocaleTimeString();
-
-    // Live status green
+    // Status green
     const ls = document.getElementById('liveStatus');
     ls.classList.remove('err');
     document.getElementById('liveText').textContent = 'Live';
 
   } catch(e) {
-    console.error('Chain fetch error:', e);
-    const ls = document.getElementById('liveStatus');
-    ls.classList.add('err');
+    document.getElementById('liveStatus').classList.add('err');
     document.getElementById('liveText').textContent = 'Error';
   }
 }
 
-async function fetchTransactions() {
+// ── Transactions ─────────────────────────────────────────────
+async function fetchTxs() {
   try {
-    const res = await fetch(`${API}/transactions?limit=5`);
-    const txs = await res.json();
-    const list = document.getElementById('txList');
-    list.innerHTML = '';
-
+    const r = await fetch(`${API}/transactions?limit=6`);
+    const txs = await r.json();
+    renderTxList(txs, 'txList');
     document.getElementById('txBadge').textContent = txs.length + ' latest';
 
-    const typeMap = {
-      user_transaction:      {label:'User',    cls:'tt-user',  icon:'👤'},
-      block_metadata_transaction: {label:'Block',   cls:'tt-block', icon:'📦'},
-      state_checkpoint_transaction:{label:'State',  cls:'tt-state', icon:'📌'},
-    };
-
-    txs.forEach(tx => {
-      const t = typeMap[tx.type] || {label:tx.type, cls:'tt-user', icon:'🔗'};
-      const hash = tx.hash ? tx.hash.slice(0,10)+'…'+tx.hash.slice(-6) : 'N/A';
-      const version = tx.version ? '#'+parseInt(tx.version).toLocaleString() : '';
-      const sender = tx.sender ? tx.sender.slice(0,8)+'…'+tx.sender.slice(-4) : 'system';
-
-      const el = document.createElement('div');
-      el.className = 'txi';
-      el.innerHTML = `
-        <div class="tx-ico" style="background:${t.cls==='tt-user'?'#185FA522':t.cls==='tt-block'?'#1D9E7522':'#BA751722'}">${t.icon}</div>
-        <div class="tx-inf">
-          <div class="tx-hash">${hash}</div>
-          <div class="tx-meta">${sender} · v${version}</div>
-        </div>
-        <span class="tx-type ${t.cls}">${t.label}</span>`;
-      list.appendChild(el);
-    });
+    // Update type chart with real ratio
+    const user  = txs.filter(t => t.type === 'user_transaction').length;
+    const block = txs.filter(t => t.type === 'block_metadata_transaction').length;
+    const state = txs.filter(t => t.type === 'state_checkpoint_transaction').length;
+    const total = txs.length || 1;
+    typeChart.data.datasets[0].data = [
+      Math.round(user/total*100),
+      Math.round(block/total*100),
+      Math.round(state/total*100)
+    ];
+    typeChart.update('none');
   } catch(e) {
-    console.error('TX fetch error:', e);
     document.getElementById('txList').innerHTML =
-      '<div style="text-align:center;padding:1rem;color:var(--muted);font-size:13px">Could not load transactions</div>';
+      '<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:13px">Could not load transactions</div>';
   }
 }
 
-// Wallet Lookup — REAL API
-async function lookup(){
-  const v = document.getElementById('wInput').value.trim();
-  const r = document.getElementById('wRes');
+function renderTxList(txs, containerId) {
+  const list = document.getElementById(containerId);
+  list.innerHTML = '';
+  const types = {
+    user_transaction:            { label:'User',  cls:'tt-u', icon:'👤', bg:'#185FA522' },
+    block_metadata_transaction:  { label:'Block', cls:'tt-b', icon:'📦', bg:'#1D9E7522' },
+    state_checkpoint_transaction:{ label:'State', cls:'tt-s', icon:'📌', bg:'#BA751722' },
+  };
+  txs.forEach(tx => {
+    const t = types[tx.type] || { label: tx.type?.split('_')[0] || 'Tx', cls:'tt-u', icon:'🔗', bg:'#185FA522' };
+    const hash   = tx.hash   ? tx.hash.slice(0,12)+'…'+tx.hash.slice(-6) : 'N/A';
+    const sender = tx.sender ? tx.sender.slice(0,10)+'…'+tx.sender.slice(-4) : 'system';
+    const ver    = tx.version ? '#'+parseInt(tx.version).toLocaleString() : '';
+    const el = document.createElement('div'); el.className = 'txi';
+    el.innerHTML = `
+      <div class="tx-ico" style="background:${t.bg}">${t.icon}</div>
+      <div class="tx-inf">
+        <div class="tx-hash">${hash}</div>
+        <div class="tx-meta">${sender} · v${ver}</div>
+      </div>
+      <span class="tx-type ${t.cls}">${t.label}</span>`;
+    list.appendChild(el);
+  });
+}
+
+// ── Wallet Lookup — updates EVERYTHING ──────────────────────
+async function lookupWallet() {
+  const addr = document.getElementById('wInput').value.trim();
+  if (!addr) return;
+
   const btn = document.getElementById('wBtn');
-
-  if(!v){ r.innerHTML='<p style="font-size:13px;color:var(--muted);margin-top:.5rem">Please enter a wallet address.</p>'; return; }
-
   btn.disabled = true;
   btn.textContent = 'Loading...';
-  r.innerHTML = '<p style="font-size:13px;color:var(--muted);margin-top:.5rem">Fetching from Aptos testnet...</p>';
+
+  // Reset wallet stats
+  ['wh-apt','wh-susd','wh-seq','wh-res'].forEach(id => {
+    document.getElementById(id).textContent = '...';
+  });
+  document.getElementById('wh-addr').textContent = addr.slice(0,12)+'…';
 
   try {
-    const [accRes, resRes] = await Promise.all([
-      fetch(`${API}/accounts/${v}`),
-      fetch(`${API}/accounts/${v}/resources`),
+    // Fetch account + resources + transactions in parallel
+    const [accRes, resRes, txRes] = await Promise.all([
+      fetch(`${API}/accounts/${addr}`),
+      fetch(`${API}/accounts/${addr}/resources`),
+      fetch(`${API}/accounts/${addr}/transactions?limit=8`),
     ]);
 
-    if(!accRes.ok) throw new Error('Account not found');
-
+    if (!accRes.ok) throw new Error('not found');
     const acc = await accRes.json();
-    let aptBalance = '0';
-    let shelbyBalance = '0';
 
-    if(resRes.ok){
+    // APT balance + ShelbyUSD balance
+    let aptBal   = '0.0000';
+    let susdBal  = '0.0000';
+    let resCount = 0;
+
+    if (resRes.ok) {
       const resources = await resRes.json();
-      const coinStore = resources.find(r => r.type === '0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>');
-      if(coinStore) {
-        const raw = parseInt(coinStore.data?.coin?.value || 0);
-        aptBalance = (raw / 1e8).toFixed(4);
+      resCount = resources.length;
+
+      // APT — legacy CoinStore
+      const coinStore = resources.find(r =>
+        r.type === '0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>'
+      );
+      if (coinStore) {
+        aptBal = (parseInt(coinStore.data?.coin?.value || 0) / 1e8).toFixed(4);
       }
-      const shelbyStore = resources.find(r => r.type && r.type.toLowerCase().includes('shelby'));
-      if(shelbyStore) shelbyBalance = JSON.stringify(shelbyStore.data).slice(0,30);
+
+      // ShelbyUSD — Fungible Asset store
+      // The FA store type is 0x1::fungible_asset::FungibleStore
+      // We look for the store whose metadata matches the ShelbyUSD contract
+      const SHELBY_CONTRACT = '0x1b18363a9f1fe5e6ebf247daba5cc1c18052bb232efdc4c50f556053922d98e1';
+
+      // Method 1: check fungible asset stores
+      const faStores = resources.filter(r =>
+        r.type && r.type.includes('FungibleStore')
+      );
+      for (const store of faStores) {
+        const meta = store.data?.metadata?.inner || store.data?.metadata;
+        if (meta && meta.toLowerCase().includes(SHELBY_CONTRACT.toLowerCase().slice(2,20))) {
+          const raw = parseInt(store.data?.balance || store.data?.coin?.value || 0);
+          susdBal = (raw / 1e6).toFixed(4); // ShelbyUSD uses 6 decimals
+          break;
+        }
+      }
+
+      // Method 2: check primary_fungible_store
+      if (susdBal === '0.0000') {
+        const primaryStore = resources.find(r =>
+          r.type && r.type.includes('primary_fungible_store') &&
+          r.type.includes(SHELBY_CONTRACT)
+        );
+        if (primaryStore) {
+          const raw = parseInt(primaryStore.data?.balance || 0);
+          susdBal = (raw / 1e6).toFixed(4);
+        }
+      }
+
+      // Method 3: look for any resource mentioning the shelby contract
+      if (susdBal === '0.0000') {
+        const shelbyRes = resources.find(r =>
+          JSON.stringify(r).toLowerCase().includes(SHELBY_CONTRACT.slice(2,16).toLowerCase())
+        );
+        if (shelbyRes) {
+          const val = shelbyRes.data?.balance || shelbyRes.data?.coin?.value || shelbyRes.data?.value;
+          if (val) susdBal = (parseInt(val) / 1e6).toFixed(4);
+        }
+      }
     }
 
-    const short = v.slice(0,8)+'…'+v.slice(-6);
+    // Update wallet hero
+    document.getElementById('wh-apt').textContent   = aptBal + ' APT';
+    document.getElementById('wh-susd').textContent  = susdBal + ' SUSD';
+    document.getElementById('wh-susd').style.color  = susdBal !== '0.0000' ? '#5DCAA5' : 'var(--text)';
+    document.getElementById('wh-seq').textContent   = parseInt(acc.sequence_number).toLocaleString();
+    document.getElementById('wh-res').textContent   = resCount;
+    document.getElementById('wh-addr').textContent  = addr.slice(0,14)+'…'+addr.slice(-6);
 
-    r.innerHTML = `<div class="wrc">
-      <div class="wr"><span class="wk">Address</span><span class="wv">${short}</span></div>
-      <div class="wr"><span class="wk">Sequence #</span><span class="wv">${parseInt(acc.sequence_number).toLocaleString()}</span></div>
-      <div class="wr"><span class="wk">APT Balance</span><span class="wv">${aptBalance} APT</span></div>
-      <div class="wr"><span class="wk">Auth Key</span><span class="wv">${acc.authentication_key?.slice(0,14)}…</span></div>
-      <div class="wr"><span class="wk">Network</span><span class="tag tb">Aptos Testnet</span></div>
-      <div class="wr"><span class="wk">Status</span><span class="tag tg">Active</span></div>
-    </div>`;
+    // Update top metrics to show wallet context
+    document.getElementById('m-blocks-c').textContent = 'wallet loaded ✓';
+    document.getElementById('m-blocks-c').className = 'mc-c pos';
+
+    // Wallet transaction history
+    if (txRes.ok) {
+      const txs = await txRes.json();
+      if (txs.length > 0) {
+        document.getElementById('walletTxCard').style.display = 'block';
+        document.getElementById('walletTxBadge').textContent = txs.length + ' transactions for ' + addr.slice(0,8)+'…';
+        renderTxList(txs, 'walletTxList');
+      }
+    }
 
   } catch(e) {
-    r.innerHTML = `<div class="wrc">
-      <div class="wr"><span class="wk">Result</span><span class="tag tr">Account not found on testnet</span></div>
-      <div class="wr" style="font-size:12px;color:var(--muted);">Make sure you're using a valid testnet address</div>
-    </div>`;
+    document.getElementById('wh-apt').textContent   = '—';
+    document.getElementById('wh-susd').textContent  = '—';
+    document.getElementById('wh-seq').textContent   = '—';
+    document.getElementById('wh-res').textContent   = 'Not found';
+    document.getElementById('wh-addr').textContent  = 'Check address and try again';
+    document.getElementById('walletTxCard').style.display = 'none';
   }
 
   btn.disabled = false;
-  btn.textContent = 'Search';
+  btn.textContent = 'Load Wallet';
 }
 
-document.getElementById('wInput').addEventListener('keydown', e=>{ if(e.key==='Enter') lookup(); });
+document.getElementById('wInput').addEventListener('keydown', e => { if (e.key === 'Enter') lookupWallet(); });
 
-// ── START ─────────────────────────────────────────────────────
-fetchChainInfo();
-fetchTransactions();
-setInterval(fetchChainInfo, 5000);      // refresh every 5 seconds
-setInterval(fetchTransactions, 10000);  // refresh txs every 10 seconds
+// ── Start ────────────────────────────────────────────────────
+fetchChain();
+fetchTxs();
+setInterval(fetchChain, 5000);
+setInterval(fetchTxs, 8000);
 </script>
 </body>
 </html>
