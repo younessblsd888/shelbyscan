@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ShelbyScan — Shelby Network Activity Tracker</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-left">
+      <div class="logo-icon">S</div>
+      <div>
+        <div class="logo-text">ShelbyScan</div>
+        <div class="logo-sub">Shelby Network Activity Tracker</div>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="live-badge"><div class="live-dot"></div>Live</div>
+      <div class="clock" id="clock"></div>
+      <a class="header-link" href="https://shelby.xyz" target="_blank">shelby.xyz ↗</a>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- METRICS -->
+    <section class="metrics">
+      <div class="metric-card">
+        <div class="metric-label">Total Blobs</div>
+        <div class="metric-value" id="m-blobs">4,821</div>
+        <div class="metric-change positive">+127 today</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Active Wallets</div>
+        <div class="metric-value" id="m-wallets">1,203</div>
+        <div class="metric-change positive">+43 today</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Network Speed</div>
+        <div class="metric-value" id="m-speed">142 ms</div>
+        <div class="metric-change neutral">avg latency</div>
+      </div>
+      <div class="metric-card">
+        <div class="metric-label">Storage Used</div>
+        <div class="metric-value">2.4 GB</div>
+        <div class="metric-change neutral">of 10 GB cap</div>
+      </div>
+    </section>
+
+    <!-- CHARTS ROW -->
+    <section class="charts-row">
+      <div class="card">
+        <div class="card-title">Upload activity — last 7 days</div>
+        <div class="chart-wrap">
+          <canvas id="activityChart"></canvas>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">File types uploaded</div>
+        <div class="legend">
+          <span class="legend-item"><span class="legend-dot" style="background:#185FA5;"></span>Images 42%</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#1D9E75;"></span>Docs 28%</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#BA7517;"></span>Video 18%</span>
+          <span class="legend-item"><span class="legend-dot" style="background:#888780;"></span>Other 12%</span>
+        </div>
+        <div class="chart-wrap chart-wrap--sm">
+          <canvas id="typeChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- BLOBS + LEADERBOARD -->
+    <section class="split-row">
+
+      <div class="card">
+        <div class="card-title">Recent blobs</div>
+        <div class="blob-list">
+          <div class="blob-item">
+            <div class="blob-icon blob-icon--blue">🖼</div>
+            <div class="blob-info">
+              <div class="blob-name">photo_2025.jpg</div>
+              <div class="blob-meta">0x3fa2…c81d · 2 min ago</div>
+            </div>
+            <div class="blob-size">2.1 MB</div>
+          </div>
+          <div class="blob-item">
+            <div class="blob-icon blob-icon--green">📄</div>
+            <div class="blob-info">
+              <div class="blob-name">report_q1.pdf</div>
+              <div class="blob-meta">0x9abc…12ef · 5 min ago</div>
+            </div>
+            <div class="blob-size">840 KB</div>
+          </div>
+          <div class="blob-item">
+            <div class="blob-icon blob-icon--amber">🎬</div>
+            <div class="blob-info">
+              <div class="blob-name">demo_clip.mp4</div>
+              <div class="blob-meta">0x7d11…f00a · 11 min ago</div>
+            </div>
+            <div class="blob-size">18.4 MB</div>
+          </div>
+          <div class="blob-item">
+            <div class="blob-icon blob-icon--blue">🖼</div>
+            <div class="blob-info">
+              <div class="blob-name">screenshot.png</div>
+              <div class="blob-meta">0x2bc9…44de · 19 min ago</div>
+            </div>
+            <div class="blob-size">312 KB</div>
+          </div>
+          <div class="blob-item">
+            <div class="blob-icon blob-icon--pink">🗂</div>
+            <div class="blob-info">
+              <div class="blob-name">dataset.csv</div>
+              <div class="blob-meta">0x5ef3…77ca · 25 min ago</div>
+            </div>
+            <div class="blob-size">1.2 MB</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Top uploaders — leaderboard</div>
+        <div class="leaderboard" id="leaderboard"></div>
+      </div>
+
+    </section>
+
+    <!-- WALLET LOOKUP -->
+    <section class="card wallet-section">
+      <div class="card-title">Wallet lookup</div>
+      <div class="wallet-search">
+        <input type="text" id="walletInput" placeholder="Enter wallet address: 0x..." />
+        <button onclick="lookupWallet()">Search</button>
+      </div>
+      <div id="walletResult"></div>
+    </section>
+
+  </main>
+
+  <footer class="footer">
+    Built for <a href="https://shelby.xyz" target="_blank">Shelby Network</a> testnet · 
+    Shelbynet · 
+    <a href="https://github.com/younessbls" target="_blank">@younessbls</a>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
