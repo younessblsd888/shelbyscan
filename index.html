@@ -115,34 +115,24 @@ a{color:var(--blue-l);text-decoration:none}
 .tg{background:#1D9E7518;color:#5DCAA5;border:.5px solid #1D9E7533}
 .tr{background:#E24B4A18;color:#E24B4A;border:.5px solid #E24B4A33}
 
-/* UPLOAD CARD */
-.upload-zone{border:1.5px dashed var(--border);border-radius:var(--r);padding:2rem;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg3);position:relative}
-.upload-zone:hover,.upload-zone.dragover{border-color:var(--blue);background:rgba(24,95,165,0.06)}
-.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
-.upload-icon{font-size:32px;margin-bottom:.5rem}
-.upload-label{font-size:14px;font-weight:500;color:var(--text);margin-bottom:.25rem}
-.upload-sub{font-size:12px;color:var(--muted)}
-.upload-file-info{display:none;background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);padding:.75rem 1rem;margin-top:.75rem;text-align:left;font-size:13px}
-.upload-file-info .fname{font-weight:500;color:var(--text)}
-.upload-file-info .fsize{color:var(--muted);font-size:11px;margin-top:2px}
-.upload-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:.75rem}
-.upload-options input,.upload-options select{background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);color:var(--text);font-size:13px;padding:8px 12px;outline:none;width:100%;transition:border-color .15s}
-.upload-options input:focus,.upload-options select:focus{border-color:var(--blue)}
-.upload-options input::placeholder{color:var(--muted)}
-.upload-options select option{background:var(--bg2)}
-.upload-btn{width:100%;margin-top:.75rem;background:var(--green);border:none;color:#fff;font-size:14px;font-weight:600;padding:11px;border-radius:var(--rs);cursor:pointer;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:8px}
-.upload-btn:hover{opacity:.85}
-.upload-btn:disabled{opacity:.4;cursor:not-allowed}
-.upload-progress{margin-top:.75rem;display:none}
-.progress-bar-bg{height:6px;background:var(--bg3);border-radius:4px;overflow:hidden;margin-bottom:.5rem}
-.progress-bar-fill{height:100%;background:var(--green);border-radius:4px;width:0%;transition:width .3s}
-.progress-label{font-size:12px;color:var(--muted);text-align:center}
-.upload-result{margin-top:.75rem;display:none;border-radius:var(--rs);padding:.75rem 1rem;font-size:13px}
-.upload-result.success{background:rgba(29,158,117,0.1);border:.5px solid rgba(29,158,117,0.3);color:#5DCAA5}
-.upload-result.error{background:rgba(226,75,74,0.1);border:.5px solid rgba(226,75,74,0.3);color:#E24B4A}
-.upload-result .result-title{font-weight:600;margin-bottom:4px}
-.upload-result .result-link{font-size:11px;word-break:break-all;opacity:.8;margin-top:4px}
-.wallet-required{background:rgba(186,117,23,0.1);border:.5px solid rgba(186,117,23,0.3);border-radius:var(--rs);padding:.75rem 1rem;font-size:13px;color:#EF9F27;margin-bottom:.75rem;display:none}
+/* TX MODAL */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:1000;display:none;align-items:center;justify-content:center;padding:1rem}
+.modal-overlay.open{display:flex}
+.modal{background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);width:100%;max-width:640px;max-height:85vh;overflow-y:auto;padding:1.4rem}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.1rem}
+.modal-title{font-size:15px;font-weight:600;color:var(--text)}
+.modal-close{background:none;border:.5px solid var(--border);color:var(--muted);width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.modal-close:hover{color:var(--text);border-color:rgba(255,255,255,.2)}
+.modal-row{display:flex;justify-content:space-between;align-items:flex-start;padding:8px 0;border-bottom:.5px solid var(--border);gap:12px;font-size:13px}
+.modal-row:last-child{border-bottom:none}
+.modal-key{color:var(--muted);flex-shrink:0;min-width:120px}
+.modal-val{color:var(--text);font-family:monospace;font-size:12px;word-break:break-all;text-align:right}
+.modal-val a{color:var(--blue-l)}
+.modal-section{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:1rem 0 .5rem}
+.modal-loading{text-align:center;padding:2rem;color:var(--muted);font-size:13px}
+.modal-events{display:flex;flex-direction:column;gap:6px;margin-top:.25rem}
+.modal-event{background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);padding:.6rem .8rem;font-size:11px;font-family:monospace;word-break:break-all;color:var(--muted)}
+.modal-event .ev-type{color:var(--blue-l);font-size:12px;margin-bottom:3px}
 
 /* FOOTER */
 footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;border-top:.5px solid var(--border)}
@@ -204,39 +194,23 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
     <div class="mc loading" id="mc4"><div class="mc-l">Live TPS</div><div class="mc-v" id="m-tps">—</div><div class="mc-c neu">txns / sec</div><div class="shimmer"></div></div>
   </div>
 
-  <!-- CHARTS -->
-  <div class="crow">
-    <div class="card">
-      <div class="ct">Block height — live <span class="ct-badge" id="chartBadge">updating...</span></div>
-      <div class="cw"><canvas id="blockChart"></canvas></div>
+  <!-- WALLET TXS — full width -->
+  <div class="card" id="walletTxCard">
+    <div class="ct">
+      Wallet transactions
+      <span class="ct-badge" id="walletTxBadge">load a wallet above</span>
     </div>
-    <div class="card">
-      <div class="ct">Transaction mix</div>
-      <div class="leg">
-        <span class="li"><span class="ld" style="background:#185FA5"></span>User</span>
-        <span class="li"><span class="ld" style="background:#1D9E75"></span>Block meta</span>
-        <span class="li"><span class="ld" style="background:#BA7517"></span>State</span>
+    <div id="walletTxList">
+      <div style="text-align:center;padding:2.5rem;color:var(--muted);font-size:13px">
+        Paste your wallet address above and click <strong style="color:var(--text)">Load Wallet</strong>
       </div>
-      <div class="cw cw-sm"><canvas id="typeChart"></canvas></div>
     </div>
   </div>
 
-  <!-- TXS + LEADERBOARD -->
-  <div class="split">
-    <div class="card">
-      <div class="ct">Recent transactions <span class="ct-badge" id="txBadge">loading...</span></div>
-      <div class="txlist" id="txList"><div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px">Fetching...</div></div>
-    </div>
-    <div class="card">
-      <div class="ct">Shelby leaderboard <span class="ct-badge">testnet</span></div>
-      <div class="lb-list" id="lb"></div>
-    </div>
-  </div>
-
-  <!-- WALLET TX HISTORY -->
-  <div class="card" id="walletTxCard" style="display:none">
-    <div class="ct">Wallet transaction history <span class="ct-badge" id="walletTxBadge">—</span></div>
-    <div class="txlist" id="walletTxList"></div>
+  <!-- LEADERBOARD -->
+  <div class="card">
+    <div class="ct">Shelby leaderboard <span class="ct-badge">testnet</span></div>
+    <div class="lb-list" id="lb"></div>
   </div>
 
   <!-- DEBUG PANEL -->
@@ -250,51 +224,14 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
 
 </div>
 
-  <!-- UPLOAD TO SHELBY -->
-  <div class="card" id="uploadCard">
-    <div class="ct">
-      Upload to Shelby
-      <span class="ct-badge" style="background:rgba(29,158,117,0.15);color:#5DCAA5;border-color:rgba(29,158,117,0.3)">Shelbynet live</span>
-    </div>
-
-    <div class="wallet-required" id="walletRequired">
-      Load your wallet first using the wallet lookup above — your address is needed to upload!
-    </div>
-
-    <div class="upload-zone" id="uploadZone">
-      <input type="file" id="fileInput" onchange="onFileSelected(this)" />
-      <div class="upload-icon">📦</div>
-      <div class="upload-label">Drop a file or click to browse</div>
-      <div class="upload-sub">Any file type · Max 10 MB · Stored on Shelby decentralized network</div>
-    </div>
-
-    <div class="upload-file-info" id="fileInfo">
-      <div class="fname" id="fileName">—</div>
-      <div class="fsize" id="fileSize">—</div>
-    </div>
-
-    <div class="upload-options">
-      <input type="text" id="blobName" placeholder="Blob name (e.g. my-file.jpg)" />
-      <select id="expiry">
-        <option value="1">Expires in 1 day</option>
-        <option value="3">Expires in 3 days</option>
-        <option value="7" selected>Expires in 7 days</option>
-        <option value="30">Expires in 30 days</option>
-      </select>
-    </div>
-
-    <button class="upload-btn" id="uploadBtn" onclick="uploadToShelby()" disabled>
-      <span>Upload to Shelby</span>
-    </button>
-
-    <div class="upload-progress" id="uploadProgress">
-      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill"></div></div>
-      <div class="progress-label" id="progressLabel">Preparing upload...</div>
-    </div>
-
-    <div class="upload-result" id="uploadResult">
-      <div class="result-title" id="resultTitle">—</div>
-      <div class="result-link" id="resultLink">—</div>
+  <!-- TX DETAIL MODAL -->
+  <div class="modal-overlay" id="txModal" onclick="closeModal(event)">
+    <div class="modal" id="modalBox">
+      <div class="modal-header">
+        <div class="modal-title">Transaction Details</div>
+        <button class="modal-close" onclick="closeTxModal()">✕</button>
+      </div>
+      <div id="modalContent"><div class="modal-loading">Loading transaction...</div></div>
     </div>
   </div>
 
@@ -416,15 +353,11 @@ async function fetchChain() {
   }
 }
 
-// ── Transactions ─────────────────────────────────────────────
+// ── Transactions — only update chart ─────────────────────────
 async function fetchTxs() {
   try {
-    const r = await fetch(`${API}/transactions?limit=6`);
+    const r = await fetch(`${API}/transactions?limit=10`);
     const txs = await r.json();
-    renderTxList(txs, 'txList');
-    document.getElementById('txBadge').textContent = txs.length + ' latest';
-
-    // Update type chart with real ratio
     const user  = txs.filter(t => t.type === 'user_transaction').length;
     const block = txs.filter(t => t.type === 'block_metadata_transaction').length;
     const state = txs.filter(t => t.type === 'state_checkpoint_transaction').length;
@@ -435,36 +368,185 @@ async function fetchTxs() {
       Math.round(state/total*100)
     ];
     typeChart.update('none');
-  } catch(e) {
-    document.getElementById('txList').innerHTML =
-      '<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:13px">Could not load transactions</div>';
-  }
+  } catch(e) {}
 }
 
 function renderTxList(txs, containerId) {
   const list = document.getElementById(containerId);
   list.innerHTML = '';
+  if (!txs || !txs.length) {
+    list.innerHTML = '<div style="text-align:center;padding:1.5rem;color:var(--muted);font-size:13px">No transactions found for this wallet</div>';
+    return;
+  }
   const types = {
-    user_transaction:            { label:'User',  cls:'tt-u', icon:'👤', bg:'#185FA522' },
-    block_metadata_transaction:  { label:'Block', cls:'tt-b', icon:'📦', bg:'#1D9E7522' },
-    state_checkpoint_transaction:{ label:'State', cls:'tt-s', icon:'📌', bg:'#BA751722' },
+    user_transaction:             { label:'User',  cls:'tt-u', icon:'👤', bg:'#185FA522' },
+    block_metadata_transaction:   { label:'Block', cls:'tt-b', icon:'📦', bg:'#1D9E7522' },
+    state_checkpoint_transaction: { label:'State', cls:'tt-s', icon:'📌', bg:'#BA751722' },
+    genesis_transaction:          { label:'Genesis', cls:'tt-s', icon:'🌱', bg:'#1D9E7522' },
   };
   txs.forEach(tx => {
-    const t = types[tx.type] || { label: tx.type?.split('_')[0] || 'Tx', cls:'tt-u', icon:'🔗', bg:'#185FA522' };
-    const hash   = tx.hash   ? tx.hash.slice(0,12)+'…'+tx.hash.slice(-6) : 'N/A';
-    const sender = tx.sender ? tx.sender.slice(0,10)+'…'+tx.sender.slice(-4) : 'system';
-    const ver    = tx.version ? '#'+parseInt(tx.version).toLocaleString() : '';
-    const el = document.createElement('div'); el.className = 'txi';
+    const t = types[tx.type] || { label: tx.type?.split('_')[0]||'Tx', cls:'tt-u', icon:'🔗', bg:'#185FA522' };
+    const hash    = tx.hash   ? tx.hash.slice(0,16)+'…'+tx.hash.slice(-8) : 'N/A';
+    const sender  = tx.sender ? tx.sender.slice(0,12)+'…'+tx.sender.slice(-6) : 'system';
+    const ver     = tx.version ? '#'+parseInt(tx.version).toLocaleString() : '';
+    const gasUsed = tx.gas_used ? parseInt(tx.gas_used).toLocaleString()+' gas' : '';
+    const success = tx.success !== undefined ? (tx.success ? '✓' : '✗') : '';
+    const succColor = tx.success === false ? 'color:#E24B4A' : 'color:#5DCAA5';
+    const ts = tx.timestamp ? new Date(parseInt(tx.timestamp)/1000).toLocaleTimeString() : '';
+
+    const el = document.createElement('div');
+    el.className = 'txi';
+    el.style.cursor = 'pointer';
+    el.onclick = () => openTxModal(tx.hash, tx);
     el.innerHTML = `
       <div class="tx-ico" style="background:${t.bg}">${t.icon}</div>
       <div class="tx-inf">
-        <div class="tx-hash">${hash}</div>
-        <div class="tx-meta">${sender} · v${ver}</div>
+        <div class="tx-hash" style="color:var(--blue-l);font-size:12px">${hash}</div>
+        <div class="tx-meta">${sender} · v${ver} ${ts ? '· '+ts : ''}</div>
       </div>
-      <span class="tx-type ${t.cls}">${t.label}</span>`;
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;flex-shrink:0">
+        <span class="tx-type ${t.cls}">${t.label}</span>
+        ${gasUsed ? `<span style="font-size:10px;color:var(--muted)">${gasUsed}</span>` : ''}
+        ${success ? `<span style="font-size:11px;font-weight:600;${succColor}">${success}</span>` : ''}
+      </div>`;
     list.appendChild(el);
   });
 }
+
+// ── TX Modal ─────────────────────────────────────────────────
+async function openTxModal(hashOrVersion) {
+  document.getElementById('txModal').classList.add('open');
+  document.getElementById('modalContent').innerHTML = '<div class="modal-loading">Loading transaction...</div>';
+
+  try {
+    // Try by hash first, fallback to version
+    let url = hashOrVersion && hashOrVersion.startsWith('0x')
+      ? `${API}/transactions/by_hash/${hashOrVersion}`
+      : `${API}/transactions/by_version/${hashOrVersion}`;
+
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('Not found');
+    const tx = await res.json();
+    renderTxModal(tx);
+  } catch(e) {
+    document.getElementById('modalContent').innerHTML =
+      `<div class="modal-loading" style="color:var(--neg)">Could not load transaction: ${e.message}</div>`;
+  }
+}
+
+
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function mrow(k,v,s=''){return `<div class="modal-row"><span class="modal-key">${k}</span><span class="modal-val" ${s}>${v}</span></div>`;}
+function msec(t){return `<div class="modal-section">${t}</div>`;}
+function mcode(t){return `<pre class="modal-code">${escHtml(typeof t==='string'?t:JSON.stringify(t,null,2))}</pre>`;}
+
+function renderTxModal(tx) {
+  const ok  = tx.success !== false;
+  const ts  = tx.timestamp ? new Date(parseInt(tx.timestamp)/1000).toLocaleString() : '—';
+  const gas = tx.gas_used  ? parseInt(tx.gas_used).toLocaleString()  : '—';
+  const gp  = tx.gas_unit_price ? parseInt(tx.gas_unit_price).toLocaleString() : '—';
+  const fee = (tx.gas_used && tx.gas_unit_price)
+    ? ((parseInt(tx.gas_used)*parseInt(tx.gas_unit_price))/1e8).toFixed(8)+' APT' : '—';
+  const fn   = tx.payload?.function || null;
+  const args = tx.payload?.arguments || [];
+  const targs= tx.payload?.type_arguments || [];
+  const evts = tx.events  || [];
+  const chgs = tx.changes || [];
+  let html = '';
+
+  // Status
+  html += `<div style="margin-bottom:1rem"><span style="font-size:13px;font-weight:700;padding:5px 16px;border-radius:20px;${ok
+    ?'background:rgba(29,158,117,.15);color:#5DCAA5;border:.5px solid rgba(29,158,117,.3)'
+    :'background:rgba(226,75,74,.15);color:#E24B4A;border:.5px solid rgba(226,75,74,.3)'
+  }">${ok?'✓  Success':'✗  Failed'}</span></div>`;
+
+  // Info
+  html += msec('Transaction info');
+  const hashDisplay = tx.hash ? tx.hash.slice(0,18)+'…'+tx.hash.slice(-8) : '—';
+  html += mrow('Hash', tx.hash
+    ? `<span style="font-family:monospace;font-size:11px;color:var(--blue-l);cursor:pointer;word-break:break-all"
+         onclick="navigator.clipboard.writeText('${tx.hash}');this.textContent='✓ copied!';setTimeout(()=>this.textContent='${hashDisplay}',1500)"
+         title="Click to copy">${hashDisplay}</span>` : '—');
+  html += mrow('Full hash', tx.hash
+    ? `<span style="font-family:monospace;font-size:10px;word-break:break-all;color:var(--muted)">${tx.hash}</span>` : '—');
+  html += mrow('Version',   tx.version ? '#'+parseInt(tx.version).toLocaleString() : '—');
+  html += mrow('Type',      tx.type?.replace(/_/g,' ')||'—');
+  html += mrow('Timestamp', ts);
+  html += mrow('Sender',    tx.sender ? `<span style="font-family:monospace;font-size:11px;word-break:break-all">${tx.sender}</span>` : '—');
+  html += mrow('Sequence',  tx.sequence_number ?? '—');
+  html += mrow('Expiry',    tx.expiration_timestamp_secs
+    ? new Date(parseInt(tx.expiration_timestamp_secs)*1000).toLocaleString() : '—');
+
+  // Gas
+  html += msec('Gas & fees');
+  html += mrow('Gas used',  gas+' units');
+  html += mrow('Gas price', gp+' octas');
+  html += mrow('Max gas',   tx.max_gas_amount ? parseInt(tx.max_gas_amount).toLocaleString() : '—');
+  html += mrow('Fee paid',  `<strong style="color:${ok?'#5DCAA5':'#E24B4A'}">${fee}</strong>`);
+
+  // Payload
+  if (fn || args.length || targs.length) {
+    html += msec('Payload');
+    if (fn)    html += mrow('Function', `<span style="font-family:monospace;font-size:11px;word-break:break-all;color:var(--blue-l)">${escHtml(fn)}</span>`);
+    if (targs.length) html += mrow('Type args', `<span style="font-family:monospace;font-size:11px">${escHtml(targs.join(', '))}</span>`);
+    if (args.length) {
+      html += mrow('Arguments','');
+      args.forEach((a,i)=>{
+        html += `<div style="padding:3px 0 3px 1rem;border-left:2px solid var(--border);margin:2px 0;font-size:11px;font-family:monospace;color:var(--muted)">
+          <span style="color:var(--blue-l)">arg[${i}]</span>  ${escHtml(JSON.stringify(a))}
+        </div>`;
+      });
+    }
+  }
+
+  // Events
+  if (evts.length) {
+    html += msec(`Events (${evts.length})`);
+    evts.forEach((ev,i)=>{
+      const shortType = (ev.type||'unknown').split('::').slice(-1)[0];
+      html += `<div class="modal-event">
+        <div class="ev-type" title="${escHtml(ev.type||'')}">${escHtml(shortType)}
+          <span style="font-size:10px;color:var(--muted);margin-left:6px">seq ${ev.sequence_number??i}</span>
+        </div>
+        ${mcode(ev.data||{})}
+      </div>`;
+    });
+  }
+
+  // State changes
+  if (chgs.length) {
+    html += msec(`State changes (${chgs.length})`);
+    chgs.forEach(ch=>{
+      const addr = ch.address||ch.state_key_hash||'';
+      html += `<div class="modal-event">
+        <div class="ev-type">${escHtml((ch.type||'').replace(/_/g,' '))}
+          ${addr?`<span style="font-family:monospace;font-size:10px;color:var(--muted);margin-left:6px">${addr.slice(0,16)}…</span>`:''}
+        </div>
+        ${ch.data?.type?`<div style="font-size:11px;font-family:monospace;color:var(--muted);margin-top:2px">${escHtml(ch.data.type.split('::').slice(-1)[0])}</div>`:''}
+        ${ch.data?.data?mcode(ch.data.data):''}
+      </div>`;
+    });
+  }
+
+  // Links
+  html += msec('Explorer links');
+  html += `<div style="display:flex;gap:10px;flex-wrap:wrap;padding:6px 0">
+    <a href="https://explorer.aptoslabs.com/txn/${tx.hash||''}?network=testnet" target="_blank"
+      style="font-size:13px;padding:6px 14px;border:.5px solid var(--border);border-radius:var(--rs);color:var(--blue-l)">Aptos Explorer ↗</a>
+    <a href="https://explorer.shelby.xyz/testnet/txn/${tx.hash||''}" target="_blank"
+      style="font-size:13px;padding:6px 14px;border:.5px solid rgba(29,158,117,.4);border-radius:var(--rs);color:#5DCAA5">Shelby Explorer ↗</a>
+  </div>`;
+
+  document.getElementById('modalContent').innerHTML = html;
+}
+
+function closeTxModal() {
+  document.getElementById('txModal').classList.remove('open');
+}
+function closeModal(e) {
+  if (e.target.id === 'txModal') closeTxModal();
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeTxModal(); });
 
 // ── Wallet Lookup — updates EVERYTHING ──────────────────────
 async function lookupWallet() {
@@ -583,11 +665,15 @@ async function lookupWallet() {
 
     if (txRes.ok) {
       const txs = await txRes.json();
-      if (txs.length > 0) {
-        document.getElementById('walletTxCard').style.display = 'block';
-        document.getElementById('walletTxBadge').textContent = txs.length + ' transactions for ' + addr.slice(0,8)+'…';
-        renderTxList(txs, 'walletTxList');
-      }
+      document.getElementById('walletTxBadge').textContent =
+        txs.length > 0
+          ? txs.length + ' transactions — click any for full details'
+          : 'no transactions yet';
+      renderTxList(txs, 'walletTxList');
+    } else {
+      document.getElementById('walletTxBadge').textContent = 'could not load';
+      document.getElementById('walletTxList').innerHTML =
+        '<div style="text-align:center;padding:1rem;color:var(--muted);font-size:13px">Could not fetch transactions</div>';
     }
 
   } catch(e) {
@@ -596,7 +682,9 @@ async function lookupWallet() {
     document.getElementById('wh-seq').textContent   = '—';
     document.getElementById('wh-res').textContent   = 'Not found';
     document.getElementById('wh-addr').textContent  = 'Check address and try again';
-    document.getElementById('walletTxCard').style.display = 'none';
+    document.getElementById('walletTxBadge').textContent = 'wallet not found';
+    document.getElementById('walletTxList').innerHTML =
+      '<div style="text-align:center;padding:1rem;color:var(--muted);font-size:13px">Wallet not found on testnet</div>';
   }
 
   btn.disabled = false;
@@ -604,155 +692,6 @@ async function lookupWallet() {
 }
 
 document.getElementById('wInput').addEventListener('keydown', e => { if (e.key === 'Enter') lookupWallet(); });
-
-// ── Upload to Shelby ─────────────────────────────────────────
-const SHELBY_RPC = 'https://api.shelbynet.shelby.xyz/shelby';
-let currentWalletAddr = null;
-let selectedFile = null;
-
-// Track when wallet is loaded
-const _origLookup = lookupWallet;
-window._walletLoaded = false;
-
-function onFileSelected(input) {
-  const file = input.files[0];
-  if (!file) return;
-  selectedFile = file;
-
-  document.getElementById('fileInfo').style.display = 'block';
-  document.getElementById('fileName').textContent = file.name;
-  document.getElementById('fileSize').textContent = (file.size / 1024).toFixed(1) + ' KB · ' + file.type || 'unknown type';
-
-  // Auto-fill blob name
-  const blobInput = document.getElementById('blobName');
-  if (!blobInput.value) blobInput.value = file.name;
-
-  checkUploadReady();
-}
-
-function checkUploadReady() {
-  const addr = document.getElementById('wInput').value.trim();
-  const hasFile = selectedFile !== null;
-  const hasAddr = addr.length > 10;
-  const btn = document.getElementById('uploadBtn');
-  const req = document.getElementById('walletRequired');
-
-  if (!hasAddr) {
-    req.style.display = 'block';
-    btn.disabled = true;
-  } else {
-    req.style.display = 'none';
-    btn.disabled = !hasFile;
-  }
-}
-
-// Watch wallet input
-document.getElementById('wInput').addEventListener('input', checkUploadReady);
-
-// Drag and drop
-const zone = document.getElementById('uploadZone');
-zone.addEventListener('dragover', e => { e.preventDefault(); zone.classList.add('dragover'); });
-zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
-zone.addEventListener('drop', e => {
-  e.preventDefault();
-  zone.classList.remove('dragover');
-  const file = e.dataTransfer.files[0];
-  if (file) {
-    document.getElementById('fileInput').files = e.dataTransfer.files;
-    onFileSelected({ files: e.dataTransfer.files });
-  }
-});
-
-async function uploadToShelby() {
-  const addr = document.getElementById('wInput').value.trim();
-  const blobName = document.getElementById('blobName').value.trim() || selectedFile.name;
-  const btn = document.getElementById('uploadBtn');
-  const progress = document.getElementById('uploadProgress');
-  const result = document.getElementById('uploadResult');
-  const fill = document.getElementById('progressFill');
-  const label = document.getElementById('progressLabel');
-
-  if (!selectedFile || !addr) return;
-  if (selectedFile.size > 10 * 1024 * 1024) {
-    showUploadResult('error', 'File too large', 'Max file size is 10 MB for browser uploads.');
-    return;
-  }
-
-  btn.disabled = true;
-  btn.innerHTML = '<span>Uploading...</span>';
-  progress.style.display = 'block';
-  result.style.display = 'none';
-
-  try {
-    // Step 1 — read file
-    setProgress(fill, label, 15, 'Reading file...');
-    const fileBuffer = await selectedFile.arrayBuffer();
-
-    // Step 2 — PUT to Shelby RPC
-    setProgress(fill, label, 40, 'Connecting to Shelby network...');
-    const uploadUrl = `${SHELBY_RPC}/v1/blobs/${addr}/${encodeURIComponent(blobName)}`;
-
-    setProgress(fill, label, 60, 'Uploading to Shelby...');
-    const res = await fetch(uploadUrl, {
-      method: 'PUT',
-      headers: {
-        'Content-Length': selectedFile.size.toString(),
-        'Content-Type': selectedFile.type || 'application/octet-stream',
-      },
-      body: fileBuffer,
-    });
-
-    setProgress(fill, label, 90, 'Finalizing...');
-
-    if (res.ok || res.status === 204) {
-      setProgress(fill, label, 100, 'Upload complete!');
-      const explorerUrl = `https://explorer.shelby.xyz/shelbynet/account/${addr}`;
-      showUploadResult(
-        'success',
-        'Uploaded to Shelby! 🎉',
-        `Blob: ${blobName} · View on Shelby Explorer: ${explorerUrl}`
-      );
-      document.getElementById('resultLink').innerHTML =
-        `<a href="${explorerUrl}" target="_blank" style="color:#5DCAA5">View on Shelby Explorer ↗</a>`;
-    } else {
-      const errText = await res.text().catch(() => res.statusText);
-      // 402 = need session/payment, 401 = auth needed
-      if (res.status === 402) {
-        showUploadResult('error', 'Payment required (402)',
-          'The Shelby RPC requires a session with ShelbyUSD payment. This is the expected testnet behavior — your upload attempt was recorded!');
-      } else if (res.status === 401) {
-        showUploadResult('error', 'Authentication required (401)',
-          'Shelby requires a signed session. The network received your request — this confirms the API is working!');
-      } else {
-        showUploadResult('error', `Upload failed (${res.status})`, errText || 'Unknown error from Shelby RPC');
-      }
-    }
-
-  } catch(e) {
-    if (e.name === 'TypeError' && e.message.includes('fetch')) {
-      showUploadResult('error', 'CORS / Network error',
-        'The Shelby RPC blocks direct browser uploads. Use the Shelby CLI for actual uploads: shelby upload <file> <name> -e tomorrow');
-    } else {
-      showUploadResult('error', 'Upload error', e.message);
-    }
-  }
-
-  btn.disabled = false;
-  btn.innerHTML = '<span>Upload to Shelby</span>';
-}
-
-function setProgress(fill, label, pct, text) {
-  fill.style.width = pct + '%';
-  label.textContent = text;
-}
-
-function showUploadResult(type, title, detail) {
-  const el = document.getElementById('uploadResult');
-  el.className = 'upload-result ' + type;
-  el.style.display = 'block';
-  document.getElementById('resultTitle').textContent = title;
-  document.getElementById('resultLink').textContent = detail;
-}
 
 // ── Debug helpers ────────────────────────────────────────────
 function showDebug(resources) {
