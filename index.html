@@ -305,7 +305,8 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
 </footer>
 
 <script>
-const API = 'https://api.testnet.staging.aptoslabs.com/v1';
+const API      = 'https://api.testnet.staging.aptoslabs.com/v1';
+const INDEXER  = 'https://api.testnet.staging.aptoslabs.com/v1/graphql';
 
 // ── Clock ────────────────────────────────────────────────────
 function tick(){ document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }
@@ -483,10 +484,23 @@ async function lookupWallet() {
   try {
     const SHELBY_CONTRACT = '0x1b18363a9f1fe5e6ebf247daba5cc1c18052bb232efdc4c50f556053922d98e1';
 
-    const [accRes, resRes, txRes] = await Promise.all([
+    // Fetch account info, transactions, and balances via GraphQL indexer (handles FA standard)
+    const [accRes, txRes, gqlRes] = await Promise.all([
       fetch(`${API}/accounts/${addr}`),
-      fetch(`${API}/accounts/${addr}/resources`),
       fetch(`${API}/accounts/${addr}/transactions?limit=8`),
+      fetch(INDEXER, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ query: `{
+          current_fungible_asset_balances(
+            where: { owner_address: { _eq: "${addr}" } }
+          ) {
+            asset_type
+            amount
+            metadata { name symbol decimals }
+          }
+        }` })
+      })
     ]);
 
     if (!accRes.ok) throw new Error('not found');
@@ -496,61 +510,63 @@ async function lookupWallet() {
     let susdBal = '0.0000';
     let resCount = 0;
 
-    if (resRes.ok) {
-      const resources = await resRes.json();
-      resCount = resources.length;
+    // ── GraphQL indexer: gets ALL FA balances including new standard ──
+    if (gqlRes.ok) {
+      const gqlData = await gqlRes.json();
+      const balances = gqlData?.data?.current_fungible_asset_balances || [];
+      resCount = balances.length;
 
-      // Show debug panel with raw resources
-      showDebug(resources);
+      showDebug(balances);
 
-      // ── APT: legacy CoinStore ──
-      const legacyCoin = resources.find(r =>
-        r.type === '0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>'
-      );
-      if (legacyCoin) {
-        aptBal = (parseInt(legacyCoin.data?.coin?.value || 0) / 1e8).toFixed(4);
-      }
+      for (const b of balances) {
+        const assetType = (b.asset_type || '').toLowerCase();
+        const amount    = parseInt(b.amount || 0);
+        const decimals  = b.metadata?.decimals ?? 8;
+        const symbol    = (b.metadata?.symbol || '').toUpperCase();
 
-      // ── APT: new Fungible Asset store ──
-      if (aptBal === '0.0000') {
-        const allFA = resources.filter(r => r.type && r.type.includes('FungibleStore'));
-        for (const fa of allFA) {
-          const meta = JSON.stringify(fa.data?.metadata || '');
-          // APT metadata address ends in 0xa or is all zeros + a
-          if (meta.includes('"0xa"') || meta.includes('aptos_coin') || meta.match(/0x0+a["}/]/)) {
-            const bal = parseInt(fa.data?.balance || 0);
-            if (bal > 0) { aptBal = (bal / 1e8).toFixed(4); break; }
-          }
+        // APT — asset type is 0x1::aptos_coin::AptosCoin or address 0xa
+        if (
+          assetType.includes('aptos_coin') ||
+          assetType === '0xa' ||
+          assetType === '0x000000000000000000000000000000000000000000000000000000000000000a' ||
+          symbol === 'APT'
+        ) {
+          aptBal = (amount / Math.pow(10, decimals)).toFixed(4);
+        }
+
+        // ShelbyUSD — match contract address
+        if (
+          assetType.includes(SHELBY_CONTRACT.slice(2).toLowerCase()) ||
+          assetType.includes(SHELBY_CONTRACT.slice(2, 20).toLowerCase()) ||
+          symbol === 'SHELBY_USD' || symbol === 'SUSD' || symbol.includes('SHELBY')
+        ) {
+          susdBal = (amount / Math.pow(10, decimals)).toFixed(4);
         }
       }
+    }
 
-      // ── APT: fallback — biggest FA balance that isn't Shelby ──
-      if (aptBal === '0.0000') {
-        const allFA = resources.filter(r => r.type && r.type.includes('FungibleStore'));
-        for (const fa of allFA) {
-          const raw = JSON.stringify(fa);
-          if (!raw.toLowerCase().includes(SHELBY_CONTRACT.slice(2,16).toLowerCase())) {
-            const bal = parseInt(fa.data?.balance || 0);
-            if (bal > 0) { aptBal = (bal / 1e8).toFixed(4); break; }
+    // Fallback to REST /resources if GraphQL failed
+    if (aptBal === '0.0000') {
+      const resRes = await fetch(`${API}/accounts/${addr}/resources`);
+      if (resRes.ok) {
+        const resources = await resRes.json();
+        resCount = resources.length;
+        const legacyCoin = resources.find(r =>
+          r.type === '0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>'
+        );
+        if (legacyCoin) {
+          aptBal = (parseInt(legacyCoin.data?.coin?.value || 0) / 1e8).toFixed(4);
+        }
+        if (susdBal === '0.0000') {
+          const shelbyKey = SHELBY_CONTRACT.slice(2, 18).toLowerCase();
+          for (const r of resources) {
+            if (JSON.stringify(r).toLowerCase().includes(shelbyKey)) {
+              const val = r.data?.balance ?? r.data?.coin?.value ?? r.data?.value;
+              if (val) { susdBal = (parseInt(val) / 1e6).toFixed(4); break; }
+            }
           }
         }
-      }
-
-      // ── ShelbyUSD: scan all resources for contract address ──
-      const shelbyKey = SHELBY_CONTRACT.slice(2, 18).toLowerCase();
-      for (const r of resources) {
-        const raw = JSON.stringify(r).toLowerCase();
-        if (raw.includes(shelbyKey)) {
-          const val =
-            r.data?.balance ??
-            r.data?.coin?.value ??
-            r.data?.value ??
-            r.data?.amount;
-          if (val !== undefined && val !== null) {
-            susdBal = (parseInt(val) / 1e6).toFixed(4);
-          }
-          break;
-        }
+        showDebug(resources);
       }
     }
 
