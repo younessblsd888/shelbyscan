@@ -36,6 +36,36 @@ a{color:var(--blue-l);text-decoration:none}
 /* LAYOUT */
 .wrap{max-width:1200px;margin:0 auto;padding:1.5rem 2rem 3rem;display:flex;flex-direction:column;gap:14px}
 
+/* NETWORK BAR */
+.netbar{display:flex;align-items:center;gap:0;background:var(--bg2);border:.5px solid var(--border);border-radius:var(--r);padding:.6rem 1.2rem;flex-wrap:wrap;gap:8px}
+.nb-item{display:flex;align-items:center;gap:8px}
+.nb-sep{width:.5px;height:16px;background:var(--border);flex-shrink:0;margin:0 4px}
+.nb-l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.nb-v{font-size:13px;font-weight:600;color:var(--text);font-variant-numeric:tabular-nums}
+.nb-v.pos{color:#5DCAA5}
+
+/* TABS */
+.tab-btn{background:none;border:none;border-bottom:2px solid transparent;color:var(--muted);font-size:13px;font-weight:500;padding:6px 16px;cursor:pointer;transition:all .15s;margin-bottom:-1px}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--blue)}
+.tab-btn:hover{color:var(--text)}
+
+/* BLOB TABLE */
+.blob-table{width:100%;border-collapse:collapse;font-size:13px}
+.blob-table th{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:8px 12px;border-bottom:.5px solid var(--border);text-align:left;white-space:nowrap}
+.blob-table td{padding:10px 12px;border-bottom:.5px solid var(--border);vertical-align:middle;color:var(--text)}
+.blob-table tr:last-child td{border-bottom:none}
+.blob-table tr:hover td{background:var(--bg3)}
+.blob-table tr{cursor:pointer;transition:background .1s}
+.blob-type{font-size:11px;padding:2px 8px;border-radius:20px;font-weight:500;white-space:nowrap}
+.bt-complete{background:rgba(29,158,117,.15);color:#5DCAA5;border:.5px solid rgba(29,158,117,.3)}
+.bt-registered{background:rgba(24,95,165,.15);color:var(--blue-l);border:.5px solid rgba(24,95,165,.3)}
+.bt-other{background:var(--bg3);color:var(--muted);border:.5px solid var(--border)}
+.blob-hash{font-family:monospace;font-size:11px;color:var(--blue-l)}
+.blob-name{font-family:monospace;font-size:12px;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.blob-owner{font-family:monospace;font-size:11px;color:var(--muted)}
+.blob-time{font-size:11px;color:var(--muted);white-space:nowrap}
+.table-wrap{overflow-x:auto}
+
 /* WALLET HERO — top of page */
 .wallet-hero{background:var(--bg2);border:.5px solid var(--blue);border-radius:var(--r);padding:1.2rem 1.4rem}
 .wh-title{font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem}
@@ -186,23 +216,42 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
     </div>
   </div>
 
-  <!-- NETWORK METRICS -->
-  <div class="metrics">
-    <div class="mc loading" id="mc1"><div class="mc-l">Block Height</div><div class="mc-v" id="m-blocks">—</div><div class="mc-c neu" id="m-blocks-c">fetching...</div><div class="shimmer"></div></div>
-    <div class="mc loading" id="mc2"><div class="mc-l">Current Epoch</div><div class="mc-v" id="m-epoch">—</div><div class="mc-c neu">Aptos testnet</div><div class="shimmer"></div></div>
-    <div class="mc loading" id="mc3"><div class="mc-l">Ledger Version</div><div class="mc-v" id="m-ledger">—</div><div class="mc-c neu" id="m-ledger-c">fetching...</div><div class="shimmer"></div></div>
-    <div class="mc loading" id="mc4"><div class="mc-l">Live TPS</div><div class="mc-v" id="m-tps">—</div><div class="mc-c neu">txns / sec</div><div class="shimmer"></div></div>
+  <!-- NETWORK STATS BAR — compact -->
+  <div class="netbar">
+    <div class="nb-item"><span class="nb-l">Block Height</span><span class="nb-v" id="m-blocks">—</span></div>
+    <div class="nb-sep"></div>
+    <div class="nb-item"><span class="nb-l">Epoch</span><span class="nb-v" id="m-epoch">—</span></div>
+    <div class="nb-sep"></div>
+    <div class="nb-item"><span class="nb-l">Ledger</span><span class="nb-v" id="m-ledger">—</span></div>
+    <div class="nb-sep"></div>
+    <div class="nb-item"><span class="nb-l">TPS</span><span class="nb-v" id="m-tps">—</span></div>
+    <div class="nb-sep"></div>
+    <div class="nb-item"><span class="nb-l">Status</span><span class="nb-v pos" id="m-blocks-c">fetching...</span></div>
   </div>
 
-  <!-- WALLET TXS — full width -->
+  <!-- BLOBS + EVENTS TABS -->
   <div class="card" id="walletTxCard">
-    <div class="ct">
-      Wallet transactions
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;gap:0;border-bottom:.5px solid var(--border)">
+        <button class="tab-btn active" id="tabBlobs" onclick="switchTab('blobs')">Blobs</button>
+        <button class="tab-btn" id="tabEvents" onclick="switchTab('events')">Events</button>
+      </div>
       <span class="ct-badge" id="walletTxBadge">load a wallet above</span>
     </div>
-    <div id="walletTxList">
-      <div style="text-align:center;padding:2.5rem;color:var(--muted);font-size:13px">
-        Paste your wallet address above and click <strong style="color:var(--text)">Load Wallet</strong>
+
+    <!-- BLOBS TABLE -->
+    <div id="blobsPanel">
+      <div id="walletTxList">
+        <div style="text-align:center;padding:2.5rem;color:var(--muted);font-size:13px">
+          Paste your wallet address above and click <strong style="color:var(--text)">Load Wallet</strong>
+        </div>
+      </div>
+    </div>
+
+    <!-- EVENTS TABLE -->
+    <div id="eventsPanel" style="display:none">
+      <div id="walletEventsList">
+        <div style="text-align:center;padding:2.5rem;color:var(--muted);font-size:13px">Load a wallet to see events</div>
       </div>
     </div>
   </div>
@@ -328,7 +377,7 @@ async function fetchChain() {
 
     document.getElementById('m-blocks').textContent  = blocks.toLocaleString();
     document.getElementById('m-blocks-c').textContent = 'live';
-    document.getElementById('m-blocks-c').className   = 'mc-c pos';
+    document.getElementById('m-blocks-c').className  = 'nb-v pos';
     document.getElementById('m-epoch').textContent   = epoch.toLocaleString();
     document.getElementById('m-ledger').textContent  = (ledger/1e9).toFixed(3)+'B';
     document.getElementById('m-tps').textContent     = tps;
@@ -340,7 +389,7 @@ async function fetchChain() {
     blockChart.update('none');
 
     document.getElementById('chartBadge').textContent = 'updated ' + t;
-    ['mc1','mc2','mc3','mc4'].forEach(id => document.getElementById(id).classList.remove('loading'));
+    // network bar loaded
 
     // Status green
     const ls = document.getElementById('liveStatus');
@@ -351,6 +400,127 @@ async function fetchChain() {
     document.getElementById('liveStatus').classList.add('err');
     document.getElementById('liveText').textContent = 'Error';
   }
+}
+
+// ── Tab switching ────────────────────────────────────────────
+function switchTab(tab) {
+  document.getElementById('blobsPanel').style.display  = tab === 'blobs'  ? 'block' : 'none';
+  document.getElementById('eventsPanel').style.display = tab === 'events' ? 'block' : 'none';
+  document.getElementById('tabBlobs').classList.toggle('active',  tab === 'blobs');
+  document.getElementById('tabEvents').classList.toggle('active', tab === 'events');
+}
+
+// ── Render blobs as table ─────────────────────────────────────
+function renderBlobTable(txs, containerId) {
+  const el = document.getElementById(containerId);
+  if (!txs || !txs.length) {
+    el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px">No blobs found for this wallet</div>';
+    return;
+  }
+
+  // Extract blob events from transactions
+  const rows = [];
+  const SHELBY_CONTRACT = '0x1b18363a9f1fe5e6ebf247daba5cc1c18052bb232efdc4c50f556053922d98e1';
+
+  txs.forEach(tx => {
+    const ts = tx.timestamp ? new Date(parseInt(tx.timestamp)/1000).toLocaleString() : '—';
+    const events = tx.events || [];
+    // Look for Shelby blob events
+    const blobEvents = events.filter(e =>
+      e.type && (
+        e.type.toLowerCase().includes('blob') ||
+        e.type.toLowerCase().includes('shelby') ||
+        e.type.toLowerCase().includes(SHELBY_CONTRACT.slice(2,12).toLowerCase())
+      )
+    );
+
+    if (blobEvents.length > 0) {
+      blobEvents.forEach(ev => {
+        const evType   = ev.type?.split('::').slice(-1)[0] || ev.type || '—';
+        const blobName = ev.data?.blob_name || ev.data?.name || ev.data?.key || '—';
+        const owner    = ev.data?.owner || ev.data?.account || tx.sender || '—';
+        rows.push({ type: evType, hash: tx.hash, owner, blobName, ts, tx });
+      });
+    } else if (tx.payload?.function?.toLowerCase().includes('blob') ||
+               tx.payload?.function?.toLowerCase().includes('shelby') ||
+               tx.payload?.function?.toLowerCase().includes(SHELBY_CONTRACT.slice(2,12).toLowerCase())) {
+      // Tx is Shelby-related even without blob events
+      const args = tx.payload?.arguments || [];
+      const blobName = args[1] || args[0] || '—';
+      const evType = tx.payload.function.split('::').slice(-1)[0] || 'upload';
+      rows.push({ type: evType, hash: tx.hash, owner: tx.sender || '—', blobName, ts, tx });
+    } else {
+      // Show all txs as generic entries
+      const fnName = tx.payload?.function?.split('::').slice(-1)[0] || tx.type?.replace(/_/g,' ') || '—';
+      rows.push({ type: fnName, hash: tx.hash, owner: tx.sender || '—', blobName: '—', ts, tx });
+    }
+  });
+
+  if (!rows.length) {
+    el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px">No transactions found</div>';
+    return;
+  }
+
+  const typeClass = t => {
+    const tl = t.toLowerCase();
+    if (tl.includes('complete')) return 'bt-complete';
+    if (tl.includes('register') || tl.includes('upload') || tl.includes('blob')) return 'bt-registered';
+    return 'bt-other';
+  };
+
+  let html = '<div class="table-wrap"><table class="blob-table"><thead><tr>';
+  html += '<th>Type</th><th>Hash</th><th>Owner</th><th>Blob Name</th><th>Timestamp</th>';
+  html += '</tr></thead><tbody>';
+
+  rows.forEach(r => {
+    const shortHash  = r.hash ? r.hash.slice(0,6)+'…'+r.hash.slice(-5) : '—';
+    const shortOwner = r.owner.length > 10 ? r.owner.slice(0,6)+'…'+r.owner.slice(-5) : r.owner;
+    html += `<tr onclick="openTxModal('${r.hash}', ${JSON.stringify(r.tx).replace(/"/g,'&quot;')})">
+      <td><span class="blob-type ${typeClass(r.type)}">${r.type}</span></td>
+      <td><span class="blob-hash">${shortHash}</span></td>
+      <td><span class="blob-owner">${shortOwner}</span></td>
+      <td><span class="blob-name" title="${r.blobName}">${r.blobName}</span></td>
+      <td><span class="blob-time">${r.ts}</span></td>
+    </tr>`;
+  });
+
+  html += '</tbody></table></div>';
+  el.innerHTML = html;
+}
+
+// ── Render events table ───────────────────────────────────────
+function renderEventsTable(txs, containerId) {
+  const el = document.getElementById(containerId);
+  const allEvents = [];
+  txs.forEach(tx => {
+    const ts = tx.timestamp ? new Date(parseInt(tx.timestamp)/1000).toLocaleString() : '—';
+    (tx.events||[]).forEach(ev => {
+      allEvents.push({ ...ev, txHash: tx.hash, ts });
+    });
+  });
+
+  if (!allEvents.length) {
+    el.innerHTML = '<div style="text-align:center;padding:2rem;color:var(--muted);font-size:13px">No events found</div>';
+    return;
+  }
+
+  let html = '<div class="table-wrap"><table class="blob-table"><thead><tr>';
+  html += '<th>Event Type</th><th>TX Hash</th><th>Sequence</th><th>Timestamp</th>';
+  html += '</tr></thead><tbody>';
+
+  allEvents.slice(0, 50).forEach(ev => {
+    const shortType = ev.type?.split('::').slice(-1)[0] || ev.type || '—';
+    const shortHash = ev.txHash ? ev.txHash.slice(0,6)+'…'+ev.txHash.slice(-5) : '—';
+    html += `<tr>
+      <td><span class="blob-name" title="${ev.type||''}">${shortType}</span></td>
+      <td><span class="blob-hash">${shortHash}</span></td>
+      <td><span class="blob-owner">${ev.sequence_number ?? '—'}</span></td>
+      <td><span class="blob-time">${ev.ts}</span></td>
+    </tr>`;
+  });
+
+  html += '</tbody></table></div>';
+  el.innerHTML = html;
 }
 
 // ── Transactions — only update chart ─────────────────────────
@@ -566,22 +736,32 @@ async function lookupWallet() {
   try {
     const SHELBY_CONTRACT = '0x1b18363a9f1fe5e6ebf247daba5cc1c18052bb232efdc4c50f556053922d98e1';
 
-    // Fetch account info, transactions, and balances via GraphQL indexer (handles FA standard)
-    const [accRes, txRes, gqlRes] = await Promise.all([
+    // Fetch account info + balances + ALL transactions via GraphQL indexer
+    const gqlQuery = {
+      query: `{
+        balances: current_fungible_asset_balances(
+          where: { owner_address: { _eq: "${addr}" } }
+        ) {
+          asset_type
+          amount
+          metadata { name symbol decimals }
+        }
+        txs: account_transactions(
+          where: { account_address: { _eq: "${addr}" } }
+          order_by: { transaction_version: desc }
+          limit: 25
+        ) {
+          transaction_version
+        }
+      }`
+    };
+
+    const [accRes, gqlRes] = await Promise.all([
       fetch(`${API}/accounts/${addr}`),
-      fetch(`${API}/accounts/${addr}/transactions?limit=8`),
       fetch(INDEXER, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query: `{
-          current_fungible_asset_balances(
-            where: { owner_address: { _eq: "${addr}" } }
-          ) {
-            asset_type
-            amount
-            metadata { name symbol decimals }
-          }
-        }` })
+        body: JSON.stringify(gqlQuery)
       })
     ]);
 
@@ -592,10 +772,11 @@ async function lookupWallet() {
     let susdBal = '0.0000';
     let resCount = 0;
 
-    // ── GraphQL indexer: gets ALL FA balances including new standard ──
+    // ── GraphQL indexer: gets ALL FA balances + tx list ──
+    let gqlData = null;
     if (gqlRes.ok) {
-      const gqlData = await gqlRes.json();
-      const balances = gqlData?.data?.current_fungible_asset_balances || [];
+      gqlData = await gqlRes.json();
+      const balances = gqlData?.data?.balances || [];
       resCount = balances.length;
 
       showDebug(balances);
@@ -663,17 +844,37 @@ async function lookupWallet() {
     document.getElementById('m-blocks-c').textContent = 'wallet loaded ✓';
     document.getElementById('m-blocks-c').className = 'mc-c pos';
 
-    if (txRes.ok) {
-      const txs = await txRes.json();
+    // Fetch full tx details for each version from GraphQL
+    const gqlTxs = gqlData?.data?.txs || [];
+    if (gqlTxs.length > 0) {
+      document.getElementById('walletTxBadge').textContent = 'loading ' + gqlTxs.length + ' transactions...';
+      // Fetch full details for each tx version in parallel (max 25)
+      const txDetails = await Promise.all(
+        gqlTxs.map(t =>
+          fetch(`${API}/transactions/by_version/${t.transaction_version}`)
+            .then(r => r.ok ? r.json() : null)
+            .catch(() => null)
+        )
+      );
+      const validTxs = txDetails.filter(Boolean);
       document.getElementById('walletTxBadge').textContent =
-        txs.length > 0
-          ? txs.length + ' transactions — click any for full details'
-          : 'no transactions yet';
-      renderTxList(txs, 'walletTxList');
+        validTxs.length + ' txns — click any row for full details';
+      renderBlobTable(validTxs, 'walletTxList');
+      renderEventsTable(validTxs, 'walletEventsList');
     } else {
-      document.getElementById('walletTxBadge').textContent = 'could not load';
-      document.getElementById('walletTxList').innerHTML =
-        '<div style="text-align:center;padding:1rem;color:var(--muted);font-size:13px">Could not fetch transactions</div>';
+      // Fallback to REST endpoint
+      const txRes = await fetch(`${API}/accounts/${addr}/transactions?limit=25`);
+      if (txRes.ok) {
+        const txs = await txRes.json();
+        document.getElementById('walletTxBadge').textContent =
+          txs.length > 0 ? txs.length + ' txns — click any row for full details' : 'no transactions yet';
+        renderBlobTable(txs, 'walletTxList');
+        renderEventsTable(txs, 'walletEventsList');
+      } else {
+        document.getElementById('walletTxBadge').textContent = 'could not load';
+        document.getElementById('walletTxList').innerHTML =
+          '<div style="text-align:center;padding:1rem;color:var(--muted);font-size:13px">Could not fetch transactions</div>';
+      }
     }
 
   } catch(e) {
