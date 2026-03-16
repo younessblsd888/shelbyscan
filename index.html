@@ -164,6 +164,24 @@ a{color:var(--blue-l);text-decoration:none}
 .modal-event{background:var(--bg3);border:.5px solid var(--border);border-radius:var(--rs);padding:.6rem .8rem;font-size:11px;font-family:monospace;word-break:break-all;color:var(--muted)}
 .modal-event .ev-type{color:var(--blue-l);font-size:12px;margin-bottom:3px}
 
+/* FILE PREVIEW MODAL */
+.fp-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .2s}
+.fp-overlay.open{opacity:1;pointer-events:all}
+.fp-box{background:#1a1a1a;border:.5px solid rgba(255,255,255,.12);border-radius:16px;width:100%;max-width:800px;max-height:90vh;overflow:hidden;display:flex;flex-direction:column}
+.fp-header{display:flex;align-items:flex-start;justify-content:space-between;padding:1.2rem 1.4rem;border-bottom:.5px solid rgba(255,255,255,.08)}
+.fp-title{font-size:16px;font-weight:600;color:#f0f0f0;margin-bottom:3px}
+.fp-meta{font-size:12px;color:#8a8fa8}
+.fp-actions{display:flex;gap:8px;align-items:center}
+.fp-btn{display:flex;align-items:center;gap:6px;font-size:12px;padding:6px 14px;border-radius:8px;border:.5px solid rgba(255,255,255,.15);background:rgba(255,255,255,.06);color:#f0f0f0;cursor:pointer;text-decoration:none;transition:background .15s}
+.fp-btn:hover{background:rgba(255,255,255,.12)}
+.fp-close{width:28px;height:28px;border-radius:50%;border:none;background:rgba(255,255,255,.08);color:#8a8fa8;cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;margin-left:8px}
+.fp-body{flex:1;overflow-y:auto;display:flex;align-items:center;justify-content:center;padding:1.5rem;min-height:300px;background:#111}
+.fp-img{max-width:100%;max-height:60vh;border-radius:8px;object-fit:contain}
+.fp-video{max-width:100%;max-height:60vh;border-radius:8px}
+.fp-file-icon{font-size:64px;text-align:center}
+.fp-file-name{font-size:14px;color:#8a8fa8;text-align:center;margin-top:12px;font-family:monospace}
+.fp-nopreview{text-align:center;color:#8a8fa8;font-size:13px;padding:2rem}
+
 /* FOOTER */
 footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;border-top:.5px solid var(--border)}
 
@@ -201,6 +219,19 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
 
 <div class="wrap">
 
+  <!-- NETWORK STATS BAR — compact, always on top -->
+  <div class="netbar">
+    <div class="nb-item"><span class="nb-l">Block Height</span><span class="nb-v" id="m-blocks">—</span></div>
+    <div class="nb-sep"></div>
+    <div class="nb-item"><span class="nb-l">Epoch</span><span class="nb-v" id="m-epoch">—</span></div>
+    <div class="nb-sep"></div>
+    <div class="nb-item"><span class="nb-l">Ledger</span><span class="nb-v" id="m-ledger">—</span></div>
+    <div class="nb-sep"></div>
+    <div class="nb-item"><span class="nb-l">TPS</span><span class="nb-v" id="m-tps">—</span></div>
+    <div class="nb-sep"></div>
+    <div class="nb-item"><span class="nb-l">Status</span><span class="nb-v pos" id="m-blocks-c">fetching...</span></div>
+  </div>
+
   <!-- WALLET HERO -->
   <div class="wallet-hero">
     <div class="wh-title">Wallet lookup — updates the whole dashboard</div>
@@ -214,19 +245,6 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
       <div class="wh-stat"><div class="wh-stat-l">Transactions</div><div class="wh-stat-v" id="wh-seq">—</div><div class="wh-stat-s">sequence number</div></div>
       <div class="wh-stat"><div class="wh-stat-l">Resources</div><div class="wh-stat-v" id="wh-res">—</div><div class="wh-stat-s" id="wh-addr">enter address above</div></div>
     </div>
-  </div>
-
-  <!-- NETWORK STATS BAR — compact -->
-  <div class="netbar">
-    <div class="nb-item"><span class="nb-l">Block Height</span><span class="nb-v" id="m-blocks">—</span></div>
-    <div class="nb-sep"></div>
-    <div class="nb-item"><span class="nb-l">Epoch</span><span class="nb-v" id="m-epoch">—</span></div>
-    <div class="nb-sep"></div>
-    <div class="nb-item"><span class="nb-l">Ledger</span><span class="nb-v" id="m-ledger">—</span></div>
-    <div class="nb-sep"></div>
-    <div class="nb-item"><span class="nb-l">TPS</span><span class="nb-v" id="m-tps">—</span></div>
-    <div class="nb-sep"></div>
-    <div class="nb-item"><span class="nb-l">Status</span><span class="nb-v pos" id="m-blocks-c">fetching...</span></div>
   </div>
 
   <!-- BLOBS + EVENTS TABS -->
@@ -256,12 +274,6 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
     </div>
   </div>
 
-  <!-- LEADERBOARD -->
-  <div class="card">
-    <div class="ct">Shelby leaderboard <span class="ct-badge">testnet</span></div>
-    <div class="lb-list" id="lb"></div>
-  </div>
-
   <!-- DEBUG PANEL -->
   <div class="card" id="debugCard" style="display:none">
     <div class="ct" style="cursor:pointer" onclick="toggleDebug()">
@@ -272,6 +284,26 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
   </div>
 
 </div>
+
+  <!-- FILE PREVIEW MODAL -->
+  <div class="fp-overlay" id="fpModal" onclick="closeFpIfBg(event)">
+    <div class="fp-box" id="fpBox">
+      <div class="fp-header">
+        <div>
+          <div class="fp-title" id="fpTitle">—</div>
+          <div class="fp-meta" id="fpMeta">—</div>
+        </div>
+        <div class="fp-actions">
+          <a class="fp-btn" id="fpDownload" href="#" target="_blank">⬇ Download</a>
+          <a class="fp-btn" id="fpShare" href="#" target="_blank">↗ Share</a>
+          <button class="fp-close" onclick="closeFp()">✕</button>
+        </div>
+      </div>
+      <div class="fp-body" id="fpBody">
+        <div class="fp-nopreview">Loading preview...</div>
+      </div>
+    </div>
+  </div>
 
   <!-- TX DETAIL MODAL -->
   <div class="modal-overlay" id="txModal" onclick="closeModal(event)">
@@ -334,26 +366,7 @@ const typeChart = new Chart(document.getElementById('typeChart'), {
   options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '65%' }
 });
 
-// ── Leaderboard ──────────────────────────────────────────────
-const leaders = [
-  { name:'0x3fa2…c81d', uploads:312, pts:3120, color:'#185FA5' },
-  { name:'0x9abc…12ef', uploads:287, pts:2870, color:'#1D9E75' },
-  { name:'0x7d11…f00a', uploads:241, pts:2410, color:'#BA7517' },
-  { name:'0x2bc9…44de', uploads:198, pts:1980, color:'#D4537E' },
-  { name:'0x5ef3…77ca', uploads:155, pts:1550, color:'#888780' },
-];
-const rkc = ['gold','silver','bronze','other-r','other-r'];
-const lb = document.getElementById('lb');
-leaders.forEach((l,i) => {
-  const d = document.createElement('div'); d.className = 'lr';
-  d.innerHTML = `
-    <div class="rk ${rkc[i]}">#${i+1}</div>
-    <div class="av" style="background:${l.color}22;color:${l.color}">${l.name.slice(2,4).toUpperCase()}</div>
-    <div class="li2"><div class="ln">${l.name}</div><div class="lu">${l.uploads} uploads</div></div>
-    <div class="bb"><div class="bf" style="width:${Math.round(l.pts/3120*100)}%;background:${l.color}"></div></div>
-    <div class="lp">${l.pts} pts</div>`;
-  lb.appendChild(d);
-});
+// leaderboard removed
 
 // ── Chain info ───────────────────────────────────────────────
 let prevLedger = 0, prevTs = 0;
@@ -475,12 +488,19 @@ function renderBlobTable(txs, containerId) {
   rows.forEach(r => {
     const shortHash  = r.hash ? r.hash.slice(0,6)+'…'+r.hash.slice(-5) : '—';
     const shortOwner = r.owner.length > 10 ? r.owner.slice(0,6)+'…'+r.owner.slice(-5) : r.owner;
-    html += `<tr onclick="openTxModal('${r.hash}', ${JSON.stringify(r.tx).replace(/"/g,'&quot;')})">
-      <td><span class="blob-type ${typeClass(r.type)}">${r.type}</span></td>
-      <td><span class="blob-hash">${shortHash}</span></td>
-      <td><span class="blob-owner">${shortOwner}</span></td>
-      <td><span class="blob-name" title="${r.blobName}">${r.blobName}</span></td>
-      <td><span class="blob-time">${r.ts}</span></td>
+    const txJson = JSON.stringify(r.tx||{}).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    const blobClickable = r.blobName && r.blobName !== '—';
+    const ownerForPreview = (r.owner||'').replace(/'/g,'');
+    const nameForPreview  = (r.blobName||'').replace(/'/g,'');
+    html += `<tr>
+      <td onclick="openTxModal('${r.hash}',null)"><span class="blob-type ${typeClass(r.type)}">${r.type}</span></td>
+      <td onclick="openTxModal('${r.hash}',null)"><span class="blob-hash">${shortHash}</span></td>
+      <td onclick="openTxModal('${r.hash}',null)"><span class="blob-owner">${shortOwner}</span></td>
+      <td>${blobClickable
+        ? `<span class="blob-name" style="color:var(--blue-l);cursor:pointer;text-decoration:underline dotted" title="Click to preview ${r.blobName}" onclick="openFilePreview('${ownerForPreview}','${nameForPreview}',event)">${r.blobName}</span>`
+        : `<span class="blob-name">${r.blobName}</span>`
+      }</td>
+      <td onclick="openTxModal('${r.hash}',null)"><span class="blob-time">${r.ts}</span></td>
     </tr>`;
   });
 
@@ -584,22 +604,24 @@ function renderTxList(txs, containerId) {
 }
 
 // ── TX Modal ─────────────────────────────────────────────────
-async function openTxModal(hashOrVersion) {
+async function openTxModal(hashOrVersion, txObj) {
+  if (!hashOrVersion || hashOrVersion === 'null' || hashOrVersion === 'undefined') return;
   document.getElementById('txModal').classList.add('open');
   document.getElementById('modalContent').innerHTML = '<div class="modal-loading">Loading transaction...</div>';
 
+  // If we already have the tx object, render immediately then fetch fresh
+  if (txObj && typeof txObj === 'object' && txObj.hash) renderTxModal(txObj);
+
   try {
-    // Try by hash first, fallback to version
-    let url = hashOrVersion && hashOrVersion.startsWith('0x')
+    const url = hashOrVersion.startsWith('0x')
       ? `${API}/transactions/by_hash/${hashOrVersion}`
       : `${API}/transactions/by_version/${hashOrVersion}`;
-
     const res = await fetch(url);
     if (!res.ok) throw new Error('Not found');
     const tx = await res.json();
     renderTxModal(tx);
   } catch(e) {
-    document.getElementById('modalContent').innerHTML =
+    if (!txObj) document.getElementById('modalContent').innerHTML =
       `<div class="modal-loading" style="color:var(--neg)">Could not load transaction: ${e.message}</div>`;
   }
 }
@@ -893,6 +915,51 @@ async function lookupWallet() {
 }
 
 document.getElementById('wInput').addEventListener('keydown', e => { if (e.key === 'Enter') lookupWallet(); });
+
+// ── File Preview Modal ───────────────────────────────────────
+const SHELBY_BASE = 'https://api.shelbynet.shelby.xyz/shelby/v1/blobs';
+
+function openFilePreview(owner, blobName, e) {
+  if (e) e.stopPropagation();
+  if (!owner || !blobName || blobName === '—') return;
+
+  const url = `${SHELBY_BASE}/${owner}/${encodeURIComponent(blobName)}`;
+  const ext  = blobName.split('.').pop().toLowerCase();
+  const name = blobName.split('/').pop();
+
+  document.getElementById('fpTitle').textContent = name;
+  document.getElementById('fpMeta').textContent  = `Owner: ${owner.slice(0,10)}…${owner.slice(-6)}`;
+  document.getElementById('fpDownload').href = url;
+  document.getElementById('fpShare').href = `https://explorer.shelby.xyz/testnet/account/${owner}`;
+
+  const body = document.getElementById('fpBody');
+  const imgs = ['jpg','jpeg','png','gif','webp','svg','bmp'];
+  const vids = ['mp4','webm','mov','avi','mkv'];
+  const docs = ['pdf'];
+  const txts = ['txt','json','csv','md','ts','js','html','css','xml','log'];
+
+  if (imgs.includes(ext)) {
+    body.innerHTML = `<img class="fp-img" src="${url}" alt="${name}" onerror="this.parentNode.innerHTML='<div class=fp-nopreview>Cannot load preview — file may require authentication</div>'" />`;
+  } else if (vids.includes(ext)) {
+    body.innerHTML = `<video class="fp-video" controls><source src="${url}" /><div class="fp-nopreview">Cannot load video preview</div></video>`;
+  } else if (docs.includes(ext)) {
+    body.innerHTML = `<iframe src="${url}" style="width:100%;height:60vh;border:none;border-radius:8px" onerror="this.outerHTML='<div class=fp-nopreview>Cannot load PDF preview</div>'"></iframe>`;
+  } else if (txts.includes(ext)) {
+    fetch(url).then(r => r.ok ? r.text() : Promise.reject())
+      .then(t => { body.innerHTML = `<pre style="font-size:12px;font-family:monospace;color:#e0e0e0;white-space:pre-wrap;word-break:break-all;max-height:60vh;overflow-y:auto;padding:1rem">${t.slice(0,5000)}</pre>`; })
+      .catch(() => { body.innerHTML = `<div class="fp-nopreview">Cannot load text preview</div>`; });
+  } else {
+    const icons = {exe:'💾',zip:'📦',rar:'📦',mp3:'🎵',wav:'🎵',doc:'📝',docx:'📝',xls:'📊',xlsx:'📊',ppt:'📊'};
+    const icon  = icons[ext] || '📄';
+    body.innerHTML = `<div><div class="fp-file-icon">${icon}</div><div class="fp-file-name">${name}</div><div class="fp-nopreview" style="margin-top:1rem">No preview available for .${ext} files<br><a href="${url}" target="_blank" style="color:var(--blue-l)">Download to view ↗</a></div></div>`;
+  }
+
+  document.getElementById('fpModal').classList.add('open');
+}
+
+function closeFp() { document.getElementById('fpModal').classList.remove('open'); }
+function closeFpIfBg(e) { if (e.target.id === 'fpModal') closeFp(); }
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFp(); });
 
 // ── Debug helpers ────────────────────────────────────────────
 function showDebug(resources) {
