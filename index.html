@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
 <title>ShelbyScan — Shelby Network Tracker</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -319,54 +318,23 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
 <footer>
   Built for <a href="https://shelby.xyz" target="_blank">Shelby Network</a> &nbsp;·&nbsp;
   API: <a href="https://api.testnet.staging.aptoslabs.com/v1" target="_blank">api.testnet.staging.aptoslabs.com</a> &nbsp;·&nbsp;
-  <a href="https://twitter.com/younessbls" target="_blank">@younessbls</a>
+  <a href="https://twitter.com/younessblsd" target="_blank">@younessblsd</a>
 </footer>
 
 <script>
-const API      = 'https://api.testnet.staging.aptoslabs.com/v1';
-const INDEXER  = 'https://api.testnet.staging.aptoslabs.com/v1/graphql';
+const API     = 'https://api.testnet.staging.aptoslabs.com/v1';
+const INDEXER = 'https://api.testnet.staging.aptoslabs.com/v1/graphql';
+const MY_WALLET = '0xfc2aece6cef4a0e179ef7ee7661650ef2041d1e9bc93df5c45e1ea56af455385';
 
 // ── Clock ────────────────────────────────────────────────────
 function tick(){ document.getElementById('clock').textContent = new Date().toLocaleTimeString(); }
 tick(); setInterval(tick, 1000);
 
-// ── Block chart ──────────────────────────────────────────────
-const bLabels = [], bData = [];
-const blockChart = new Chart(document.getElementById('blockChart'), {
-  type: 'line',
-  data: {
-    labels: bLabels,
-    datasets: [{
-      data: bData,
-      borderColor: '#185FA5',
-      backgroundColor: 'rgba(24,95,165,0.12)',
-      borderWidth: 2,
-      pointRadius: 3,
-      pointBackgroundColor: '#185FA5',
-      fill: true, tension: 0.4
-    }]
-  },
-  options: {
-    responsive: true, maintainAspectRatio: false,
-    plugins: { legend: { display: false } },
-    scales: {
-      x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8a8fa8', font: { size: 10 }, maxTicksLimit: 8 } },
-      y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#8a8fa8', font: { size: 10 }, callback: v => (v/1e6).toFixed(2)+'M' } }
-    }
-  }
+// ── Pre-fill wallet on load ──────────────────────────────────
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('wInput').value = MY_WALLET;
+  lookupWallet();
 });
-
-// ── Type chart ───────────────────────────────────────────────
-const typeChart = new Chart(document.getElementById('typeChart'), {
-  type: 'doughnut',
-  data: {
-    labels: ['User', 'Block meta', 'State'],
-    datasets: [{ data: [68, 24, 8], backgroundColor: ['#185FA5','#1D9E75','#BA7517'], borderWidth: 0 }]
-  },
-  options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '65%' }
-});
-
-// leaderboard removed
 
 // ── Chain info ───────────────────────────────────────────────
 let prevLedger = 0, prevTs = 0;
@@ -394,15 +362,6 @@ async function fetchChain() {
     document.getElementById('m-epoch').textContent   = epoch.toLocaleString();
     document.getElementById('m-ledger').textContent  = (ledger/1e9).toFixed(3)+'B';
     document.getElementById('m-tps').textContent     = tps;
-
-    // Chart
-    const t = new Date().toLocaleTimeString('en',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    bLabels.push(t); bData.push(blocks);
-    if (bLabels.length > 12) { bLabels.shift(); bData.shift(); }
-    blockChart.update('none');
-
-    document.getElementById('chartBadge').textContent = 'updated ' + t;
-    // network bar loaded
 
     // Status green
     const ls = document.getElementById('liveStatus');
@@ -543,23 +502,8 @@ function renderEventsTable(txs, containerId) {
   el.innerHTML = html;
 }
 
-// ── Transactions — only update chart ─────────────────────────
-async function fetchTxs() {
-  try {
-    const r = await fetch(`${API}/transactions?limit=10`);
-    const txs = await r.json();
-    const user  = txs.filter(t => t.type === 'user_transaction').length;
-    const block = txs.filter(t => t.type === 'block_metadata_transaction').length;
-    const state = txs.filter(t => t.type === 'state_checkpoint_transaction').length;
-    const total = txs.length || 1;
-    typeChart.data.datasets[0].data = [
-      Math.round(user/total*100),
-      Math.round(block/total*100),
-      Math.round(state/total*100)
-    ];
-    typeChart.update('none');
-  } catch(e) {}
-}
+// ── fetchTxs — no-op (charts removed) ───────────────────────
+async function fetchTxs() {}
 
 function renderTxList(txs, containerId) {
   const list = document.getElementById(containerId);
