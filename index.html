@@ -310,13 +310,13 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
 
 <footer>
   Built for <a href="https://shelby.xyz" target="_blank">Shelby Network</a> &nbsp;·&nbsp;
-  API: <a href="https://api.testnet.staging.aptoslabs.com/v1" target="_blank">api.testnet.staging.aptoslabs.com</a> &nbsp;·&nbsp;
+  API: <a href="https://api.shelbynet.shelby.xyz/v1" target="_blank">api.shelbynet.shelby.xyz</a> &nbsp;·&nbsp;
   <a href="https://twitter.com/younessblsd" target="_blank">@younessblsd</a>
 </footer>
 
 <script>
-const API     = 'https://api.testnet.staging.aptoslabs.com/v1';
-const INDEXER = 'https://api.testnet.staging.aptoslabs.com/v1/graphql';
+const API     = 'https://api.shelbynet.shelby.xyz/v1';
+const INDEXER = 'https://api.shelbynet.shelby.xyz/v1/graphql';
 const MY_WALLET = '0xfc2aece6cef4a0e179ef7ee7661650ef2041d1e9bc93df5c45e1ea56af455385';
 
 // ── Clock ────────────────────────────────────────────────────
@@ -324,10 +324,7 @@ function tick(){ document.getElementById('clock').textContent = new Date().toLoc
 tick(); setInterval(tick, 1000);
 
 // ── Pre-fill wallet on load ──────────────────────────────────
-window.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('wInput').value = MY_WALLET;
-  lookupWallet();
-});
+
 
 // ── Chain info ───────────────────────────────────────────────
 let prevLedger = 0, prevTs = 0;
@@ -903,6 +900,10 @@ fetchChain();
 fetchTxs();
 setInterval(fetchChain, 5000);
 setInterval(fetchTxs, 8000);
+
+// auto-load wallet after everything is ready
+document.getElementById('wInput').value = MY_WALLET;
+lookupWallet();
 </script>
 </body>
 </html>
