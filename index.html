@@ -272,14 +272,6 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
       </div>
     </div>
   </div>
-
-  <!-- DEBUG PANEL -->
-  <div class="card" id="debugCard" style="display:none">
-    <div class="ct" style="cursor:pointer" onclick="toggleDebug()">
-      Raw resources — debug
-      <span class="ct-badge" id="debugBadge">click to show</span>
-    </div>
-    <div id="debugContent" style="display:none;font-family:monospace;font-size:11px;color:var(--muted);background:var(--bg3);border-radius:var(--rs);padding:1rem;overflow-x:auto;white-space:pre-wrap;max-height:300px;overflow-y:auto;"></div>
   </div>
 
 </div>
@@ -323,7 +315,6 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
 
 <script>
 const API     = 'https://api.shelbynet.shelby.xyz/v1';
-const INDEXER = 'https://api.shelbynet.shelby.xyz/v1/graphql';
 const MY_WALLET = '0xfc2aece6cef4a0e179ef7ee7661650ef2041d1e9bc93df5c45e1ea56af455385';
 
 // ── Clock ────────────────────────────────────────────────────
@@ -705,147 +696,67 @@ async function lookupWallet() {
   document.getElementById('wh-addr').textContent = addr.slice(0,12)+'…';
 
   try {
-    const SHELBY_CONTRACT = '0x1b18363a9f1fe5e6ebf247daba5cc1c18052bb232efdc4c50f556053922d98e1';
+    const SC = '0x1b18363a9f1fe5e6ebf247daba5cc1c18052bb232efdc4c50f556053922d98e1';
 
-    // Fetch account info + balances + ALL transactions via GraphQL indexer
-    const gqlQuery = {
-      query: `{
-        balances: current_fungible_asset_balances(
-          where: { owner_address: { _eq: "${addr}" } }
-        ) {
-          asset_type
-          amount
-          metadata { name symbol decimals }
-        }
-        txs: account_transactions(
-          where: { account_address: { _eq: "${addr}" } }
-          order_by: { transaction_version: desc }
-          limit: 50
-        ) {
-          transaction_version
-        }
-      }`
-    };
-
-    const [accRes, gqlRes] = await Promise.all([
-      fetch(`${API}/accounts/${addr}`),
-      fetch(INDEXER, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(gqlQuery)
-      })
-    ]);
-
+    // Step 1 — account info
+    const accRes = await fetch(`${API}/accounts/${addr}`);
     if (!accRes.ok) throw new Error('not found');
     const acc = await accRes.json();
 
+    // Step 2 — balances via /resources (pure REST, no GraphQL)
     let aptBal  = '0.0000';
     let susdBal = '0.0000';
     let resCount = 0;
+    const resRes = await fetch(`${API}/accounts/${addr}/resources`);
+    if (resRes.ok) {
+      const resources = await resRes.json();
+      resCount = resources.length;
+      const scShort = SC.slice(2, 18).toLowerCase();
 
-    // ── GraphQL indexer: gets ALL FA balances + tx list ──
-    let gqlData = null;
-    if (gqlRes.ok) {
-      gqlData = await gqlRes.json();
-      const balances = gqlData?.data?.balances || [];
-      resCount = balances.length;
-
-      showDebug(balances);
-
-      for (const b of balances) {
-        const assetType = (b.asset_type || '').toLowerCase();
-        const amount    = parseInt(b.amount || 0);
-        const decimals  = b.metadata?.decimals ?? 8;
-        const symbol    = (b.metadata?.symbol || '').toUpperCase();
-
-        // APT — asset type is 0x1::aptos_coin::AptosCoin or address 0xa
-        if (
-          assetType.includes('aptos_coin') ||
-          assetType === '0xa' ||
-          assetType === '0x000000000000000000000000000000000000000000000000000000000000000a' ||
-          symbol === 'APT'
-        ) {
-          aptBal = (amount / Math.pow(10, decimals)).toFixed(4);
+      for (const r of resources) {
+        const t   = (r.type || '').toLowerCase();
+        const raw = JSON.stringify(r).toLowerCase();
+        // APT legacy CoinStore
+        if (t.includes('aptos_coin') && t.includes('coinstore')) {
+          const v = parseInt(r.data?.coin?.value || 0);
+          if (v > 0) aptBal = (v / 1e8).toFixed(4);
         }
-
-        // ShelbyUSD — match contract address
-        if (
-          assetType.includes(SHELBY_CONTRACT.slice(2).toLowerCase()) ||
-          assetType.includes(SHELBY_CONTRACT.slice(2, 20).toLowerCase()) ||
-          symbol === 'SHELBY_USD' || symbol === 'SUSD' || symbol.includes('SHELBY')
-        ) {
-          susdBal = (amount / Math.pow(10, decimals)).toFixed(4);
+        // APT new FA FungibleStore
+        if (t.includes('fungiblestore') && !raw.includes(scShort)) {
+          const v = parseInt(r.data?.balance || 0);
+          if (v > 0 && aptBal === '0.0000') aptBal = (v / 1e8).toFixed(4);
+        }
+        // ShelbyUSD — any resource containing contract address
+        if (raw.includes(scShort)) {
+          const v = r.data?.balance ?? r.data?.coin?.value ?? r.data?.value ?? r.data?.amount;
+          if (v !== undefined && v !== null) susdBal = (parseInt(v) / 1e6).toFixed(4);
         }
       }
     }
 
-    // Always try /resources too (Shelbynet GraphQL schema may differ)
-    if (aptBal === '0.0000' || susdBal === '0.0000') {
-      const resRes = await fetch(`${API}/accounts/${addr}/resources`);
-      if (resRes.ok) {
-        const resources = await resRes.json();
-        resCount = resources.length;
-        const legacyCoin = resources.find(r =>
-          r.type === '0x1::coin::CoinStore<0x1::aptos_coin::AptosCoin>'
-        );
-        if (legacyCoin) {
-          aptBal = (parseInt(legacyCoin.data?.coin?.value || 0) / 1e8).toFixed(4);
-        }
-        if (susdBal === '0.0000') {
-          const shelbyKey = SHELBY_CONTRACT.slice(2, 18).toLowerCase();
-          for (const r of resources) {
-            if (JSON.stringify(r).toLowerCase().includes(shelbyKey)) {
-              const val = r.data?.balance ?? r.data?.coin?.value ?? r.data?.value;
-              if (val) { susdBal = (parseInt(val) / 1e6).toFixed(4); break; }
-            }
-          }
-        }
-        showDebug(resources);
-      }
-    }
-
-    // Update wallet hero
+    // Step 3 — update hero
     document.getElementById('wh-apt').textContent   = aptBal + ' APT';
     document.getElementById('wh-susd').textContent  = susdBal + ' SUSD';
     document.getElementById('wh-susd').style.color  = susdBal !== '0.0000' ? '#5DCAA5' : 'var(--text)';
     document.getElementById('wh-seq').textContent   = parseInt(acc.sequence_number).toLocaleString();
     document.getElementById('wh-res').textContent   = resCount;
     document.getElementById('wh-addr').textContent  = addr.slice(0,14)+'…'+addr.slice(-6);
-
     document.getElementById('m-blocks-c').textContent = 'wallet loaded ✓';
-    document.getElementById('m-blocks-c').className = 'mc-c pos';
+    document.getElementById('m-blocks-c').className   = 'nb-v pos';
 
-    // Fetch full tx details for each version from GraphQL
-    const gqlTxs = gqlData?.data?.txs || [];
-    if (gqlTxs.length > 0) {
-      document.getElementById('walletTxBadge').textContent = 'loading ' + gqlTxs.length + ' transactions...';
-      // Fetch full details for each tx version in parallel (max 25)
-      const txDetails = await Promise.all(
-        gqlTxs.map(t =>
-          fetch(`${API}/transactions/by_version/${t.transaction_version}`)
-            .then(r => r.ok ? r.json() : null)
-            .catch(() => null)
-        )
-      );
-      const validTxs = txDetails.filter(Boolean);
+    // Step 4 — transactions via pure REST
+    document.getElementById('walletTxBadge').textContent = 'loading transactions...';
+    const txRes = await fetch(`${API}/accounts/${addr}/transactions?limit=50`);
+    if (txRes.ok) {
+      const txs = await txRes.json();
       document.getElementById('walletTxBadge').textContent =
-        validTxs.length + ' txns — click any row for full details';
-      renderBlobTable(validTxs, 'walletTxList');
-      renderEventsTable(validTxs, 'walletEventsList');
+        txs.length > 0 ? txs.length + ' txns — click any row for full details' : 'no transactions yet';
+      renderBlobTable(txs, 'walletTxList');
+      renderEventsTable(txs, 'walletEventsList');
     } else {
-      // Fallback to REST endpoint
-      const txRes = await fetch(`${API}/accounts/${addr}/transactions?limit=25`);
-      if (txRes.ok) {
-        const txs = await txRes.json();
-        document.getElementById('walletTxBadge').textContent =
-          txs.length > 0 ? txs.length + ' txns — click any row for full details' : 'no transactions yet';
-        renderBlobTable(txs, 'walletTxList');
-        renderEventsTable(txs, 'walletEventsList');
-      } else {
-        document.getElementById('walletTxBadge').textContent = 'could not load';
-        document.getElementById('walletTxList').innerHTML =
-          '<div style="text-align:center;padding:1rem;color:var(--muted);font-size:13px">Could not fetch transactions</div>';
-      }
+      document.getElementById('walletTxBadge').textContent = 'could not load transactions';
+      document.getElementById('walletTxList').innerHTML =
+        '<div style="text-align:center;padding:1rem;color:var(--muted);font-size:13px">Could not load — check console</div>';
     }
 
   } catch(e) {
@@ -910,25 +821,6 @@ function closeFp() { document.getElementById('fpModal').classList.remove('open')
 function closeFpIfBg(e) { if (e.target.id === 'fpModal') closeFp(); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFp(); });
 
-// ── Debug helpers ────────────────────────────────────────────
-function showDebug(resources) {
-  const card = document.getElementById('debugCard');
-  const content = document.getElementById('debugContent');
-  const badge = document.getElementById('debugBadge');
-  card.style.display = 'block';
-  badge.textContent = resources.length + ' resources — click to show';
-  content.textContent = JSON.stringify(resources, null, 2);
-}
-function toggleDebug() {
-  const c = document.getElementById('debugContent');
-  const b = document.getElementById('debugBadge');
-  if (c.style.display === 'none') {
-    c.style.display = 'block';
-    b.textContent = 'click to hide';
-  } else {
-    c.style.display = 'none';
-    b.textContent = 'click to show';
-  }
 }
 
 // ── Start ────────────────────────────────────────────────────
