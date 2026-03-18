@@ -273,13 +273,6 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
     </div>
   </div>
 
-  <!-- DEBUG PANEL -->
-  <div class="card" id="debugCard" style="display:none">
-    <div class="ct" style="cursor:pointer" onclick="toggleDebug()">
-      Raw resources — debug
-      <span class="ct-badge" id="debugBadge">click to show</span>
-    </div>
-    <div id="debugContent" style="display:none;font-family:monospace;font-size:11px;color:var(--muted);background:var(--bg3);border-radius:var(--rs);padding:1rem;overflow-x:auto;white-space:pre-wrap;max-height:300px;overflow-y:auto;"></div>
   </div>
 
 </div>
@@ -745,7 +738,6 @@ async function lookupWallet() {
       const balances = gqlData?.data?.balances || [];
       resCount = balances.length;
 
-      showDebug(balances);
 
       for (const b of balances) {
         const assetType = (b.asset_type || '').toLowerCase();
@@ -795,7 +787,6 @@ async function lookupWallet() {
             }
           }
         }
-        showDebug(resources);
       }
     }
 
@@ -905,25 +896,6 @@ function closeFp() { document.getElementById('fpModal').classList.remove('open')
 function closeFpIfBg(e) { if (e.target.id === 'fpModal') closeFp(); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFp(); });
 
-// ── Debug helpers ────────────────────────────────────────────
-function showDebug(resources) {
-  const card = document.getElementById('debugCard');
-  const content = document.getElementById('debugContent');
-  const badge = document.getElementById('debugBadge');
-  card.style.display = 'block';
-  badge.textContent = resources.length + ' resources — click to show';
-  content.textContent = JSON.stringify(resources, null, 2);
-}
-function toggleDebug() {
-  const c = document.getElementById('debugContent');
-  const b = document.getElementById('debugBadge');
-  if (c.style.display === 'none') {
-    c.style.display = 'block';
-    b.textContent = 'click to hide';
-  } else {
-    c.style.display = 'none';
-    b.textContent = 'click to show';
-  }
 }
 
 // ── Start ────────────────────────────────────────────────────
