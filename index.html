@@ -273,6 +273,13 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
     </div>
   </div>
 
+  <!-- DEBUG PANEL -->
+  <div class="card" id="debugCard" style="display:none">
+    <div class="ct" style="cursor:pointer" onclick="toggleDebug()">
+      Raw resources — debug
+      <span class="ct-badge" id="debugBadge">click to show</span>
+    </div>
+    <div id="debugContent" style="display:none;font-family:monospace;font-size:11px;color:var(--muted);background:var(--bg3);border-radius:var(--rs);padding:1rem;overflow-x:auto;white-space:pre-wrap;max-height:300px;overflow-y:auto;"></div>
   </div>
 
 </div>
@@ -310,13 +317,13 @@ footer{text-align:center;font-size:12px;color:var(--muted);padding:1.5rem 2rem;b
 
 <footer>
   Built for <a href="https://shelby.xyz" target="_blank">Shelby Network</a> &nbsp;·&nbsp;
-  API: <a href="https://api.shelbynet.shelby.xyz/v1" target="_blank">api.shelbynet.shelby.xyz</a> &nbsp;·&nbsp;
+  API: <a href="https://api.testnet.staging.aptoslabs.com/v1" target="_blank">api.testnet.staging.aptoslabs.com</a> &nbsp;·&nbsp;
   <a href="https://twitter.com/younessblsd" target="_blank">@younessblsd</a>
 </footer>
 
 <script>
-const API     = 'https://api.shelbynet.shelby.xyz/v1';
-const INDEXER = 'https://api.shelbynet.shelby.xyz/v1/graphql';
+const API     = 'https://api.testnet.staging.aptoslabs.com/v1';
+const INDEXER = 'https://api.testnet.staging.aptoslabs.com/v1/graphql';
 const MY_WALLET = '0xfc2aece6cef4a0e179ef7ee7661650ef2041d1e9bc93df5c45e1ea56af455385';
 
 // ── Clock ────────────────────────────────────────────────────
@@ -324,7 +331,10 @@ function tick(){ document.getElementById('clock').textContent = new Date().toLoc
 tick(); setInterval(tick, 1000);
 
 // ── Pre-fill wallet on load ──────────────────────────────────
-
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('wInput').value = MY_WALLET;
+  lookupWallet();
+});
 
 // ── Chain info ───────────────────────────────────────────────
 let prevLedger = 0, prevTs = 0;
@@ -735,6 +745,7 @@ async function lookupWallet() {
       const balances = gqlData?.data?.balances || [];
       resCount = balances.length;
 
+      showDebug(balances);
 
       for (const b of balances) {
         const assetType = (b.asset_type || '').toLowerCase();
@@ -784,6 +795,7 @@ async function lookupWallet() {
             }
           }
         }
+        showDebug(resources);
       }
     }
 
@@ -893,6 +905,25 @@ function closeFp() { document.getElementById('fpModal').classList.remove('open')
 function closeFpIfBg(e) { if (e.target.id === 'fpModal') closeFp(); }
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeFp(); });
 
+// ── Debug helpers ────────────────────────────────────────────
+function showDebug(resources) {
+  const card = document.getElementById('debugCard');
+  const content = document.getElementById('debugContent');
+  const badge = document.getElementById('debugBadge');
+  card.style.display = 'block';
+  badge.textContent = resources.length + ' resources — click to show';
+  content.textContent = JSON.stringify(resources, null, 2);
+}
+function toggleDebug() {
+  const c = document.getElementById('debugContent');
+  const b = document.getElementById('debugBadge');
+  if (c.style.display === 'none') {
+    c.style.display = 'block';
+    b.textContent = 'click to hide';
+  } else {
+    c.style.display = 'none';
+    b.textContent = 'click to show';
+  }
 }
 
 // ── Start ────────────────────────────────────────────────────
@@ -900,10 +931,6 @@ fetchChain();
 fetchTxs();
 setInterval(fetchChain, 5000);
 setInterval(fetchTxs, 8000);
-
-// auto-load wallet after everything is ready
-document.getElementById('wInput').value = MY_WALLET;
-lookupWallet();
 </script>
 </body>
 </html>
